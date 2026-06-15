@@ -1,0 +1,255 @@
+=== PAGE 1 ===
+上海海栎创微电子有限公司
+Hynitron Microelectronics CST816T
+高性能自电容触控芯片 V2.2
+概述
+CST816T自电容触控芯片，采用高速MCU内核并内嵌DSP电路，结合自身的快速自电容感应技术，可广
+泛支持三角形在内的多种自电容图案，在其上实现单点手势和真实两点操作，实现极高灵敏度和低待机功
+耗。
+芯片特点
+ 内置快速自电容检测电路及高性能DSP模块  功耗指标
+ 支持在线编程；  动态模式下典型功耗 1.7mA；
+ 内置看门狗；  待机模式下典型功耗 8.0uA；
+ 多个按键支持；  休眠模式下典型功耗 1.0uA;
+ 支持待机手势唤醒功能；
+ 通讯接口
+ 电容屏支持  I2C 主/从通讯接口，速率 10Khz~400Khz
+ 最多支持13个感应通道； 可配置；
+ 通道悬空/下拉设计支持；  兼容1.8V/3.3V接口电平。
+ 模组参数自动调校；
+ 电源供电
+ 性能指标  单电源供电 2.8V ~ 3.6V，电源纹波 <=
+ 刷新率 >100Hz； 50mv；
+ 单点手势和真实两点操作；
+ 封装类型：QFNWB3*3-20L(P0.4T0.55）
+应用方向
+手环、手表等产品，TP尺寸建议在 1.8inch以内。
+ShanghaiHynitron MicroelectronicsCo.,Ltd -1-
+=== PAGE 2 ===
+上海海栎创微电子有限公司
+Hynitron Microelectronics CST816T
+参考电路
+图1. 参考电路图
+注意事项：
+ CMOD滤波电容使用至少10%精度的NPO/COG材质电容
+ CMOD电容值的选择范围为1nF到5.6nF之间，一般选择1nF。具体的最佳值和相应的本体电容有关。
+ CMOD滤波电容必须靠近芯片相应管脚放置，与芯片之间的走线越短越好。
+ShanghaiHynitron MicroelectronicsCo.,Ltd -2-
+=== PAGE 3 ===
+上海海栎创微电子有限公司
+Hynitron Microelectronics CST816T
+订货信息
+料号 封装 表面印字 包装
+CST816T
+CST816T QFNWB3*3-20L(P0.4T0.55） XXXXXXXXX 编带（5000）
+（生产跟踪码）
+表1: 订货信息
+ShanghaiHynitron MicroelectronicsCo.,Ltd -3-
+=== PAGE 4 ===
+上海海栎创微电子有限公司
+Hynitron Microelectronics CST816T
+引脚分布/说明
+图2. 引脚说明
+名称 说明 备注
+S01~S13 感应通道
+VDDA 电源 2.8V~3.6V，接2.2uF~10uF电容
+CMOD0/CMOD1 稳压电容 接1nF~5.6nF稳压电容
+IRQ 中断输出 上升/下降沿可选
+SCL/SDA I2C 可选内部上拉/开漏模式
+RST 复位输入 低有效
+表2: 引脚说明表
+备注：
+1. CMOD0/CMOD1必须接稳压电容，大小在1nF~5.6nF;
+ShanghaiHynitron MicroelectronicsCo.,Ltd -4-
+=== PAGE 5 ===
+上海海栎创微电子有限公司
+Hynitron Microelectronics CST816T
+功能描述
+CST816T自电容触控芯片，通过其内置的快速自电容感应模块，可无需任何外接器件(电路旁路电容除外)，
+即可在三角形等图案上实现单点手势和真实两点功能；在实现快速反应的同时，具有极其优异的抗噪、防
+水、低功耗表现。
+上电及复位
+芯片内置上电复位电路，不需要在外部接专用的复位电路。
+内置上电复位模块将使芯片保持在复位状态直至电压正常，当电压低于某阈值时，芯片也会被复位。
+当外部复位引脚RST为低时将复位整个芯片，可将该引脚悬空。
+图3. 上电时序图
+图4. 外部复位时序图
+ShanghaiHynitron MicroelectronicsCo.,Ltd -5-
+=== PAGE 6 ===
+上海海栎创微电子有限公司
+Hynitron Microelectronics CST816T
+符号 描述 最小值 最大值 单位
+Tpor 上电后芯片初始化时间 100 - mS
+Tpr RST引脚延迟拉高时间 5 - mS
+Tron 复位后芯片重新初始化时间 100 - mS
+Trst 复位脉冲时间 0.1 - mS
+表3: 上电与复位时序说明
+工作模式
+图5. 工作模式转换
+ 动态模式
+当频繁有触摸操作时，处于此模式；在此模式下，触控芯片快速对触摸屏进行自电容扫描，以及时检
+测触摸并上报给主机。
+在没有触摸2S后，自动进入待机模式。自动进入待机模式的功能可以通过寄存器进行控制。
+ 待机模式
+在此模式下，触控芯片以较低频率对触摸屏进行扫描，检测到手指触摸后进入动态模式，同时通过IRQ
+引脚唤醒主机；也可通过复位引脚切换到动态模式。
+ 休眠模式
+当接收到睡眠命令后，处于此模式；在此模式下，触控芯片处于深度睡眠状态，以最大限度节省功耗，
+可通过复位引脚切换到动态模式。
+ShanghaiHynitron MicroelectronicsCo.,Ltd -6-
+=== PAGE 7 ===
+上海海栎创微电子有限公司
+Hynitron Microelectronics CST816T
+通道/节点配置
+CST816T自电容触控芯片最多可提供17个感应通道，每个通道无需外接器件便可支持自电容扫描。
+每通道可支持的自电容大小范围: 1pF~400pF
+I2C通讯
+该芯片支持标准的I2C通讯协议标准，可实现10Khz~400Khz的可配通信速率。
+两个I2C引脚SCL和SDA，除支持开漏模式外，还支持内部上拉模式，供灵活选择。
+中断方式
+触控芯片仅在检测到有效触摸, 并需要上报给主机时,才会通过IRQ引脚通知主机读取有效数据，以提
+高效率，减轻CPU负担；
+中断边沿可根据需要配置为上升沿或者下降沿有效；
+当在待机模下匹配预定义手势时，IRQ引脚还用作唤醒主机。
+IIC接口说明
+芯片本身支持IIC操作，也可利用IIC引脚实现简单的IO操作。具体功能可以根据具体项目由软件自
+定义。
+a)器件的IIC地址
+芯片的7bit设备地址一般为0x15，即设备写地址为0x2A，读地址为0x2B。
+部分项目的设备地址可能不同，请咨询相应项目及工程人员。
+b)IIC的通信速度
+为了保证通信的可靠性，建议最大使用400Kbps的通信速率。
+c)写入单个字节
+图6. 往0x1F寄存器写入0x01
+ShanghaiHynitron MicroelectronicsCo.,Ltd -7-
+=== PAGE 8 ===
+上海海栎创微电子有限公司
+Hynitron Microelectronics CST816T
+d) 连续写入多个字节
+图7. 往0x1E、0x1F分别写入0x20、0x01
+e)读取单个字节
+图8. 从0x21读取单个字节
+f)连续读取多个字节
+图9. 从0x21、0x22、0x23读取3个字节
+ShanghaiHynitron MicroelectronicsCo.,Ltd -8-
+=== PAGE 9 ===
+上海海栎创微电子有限公司
+Hynitron Microelectronics CST816T
+g) 时序说明
+符号 说明 最小值 典型值 最大值 单位
+F SCLI2C I2C时钟频率 10 - 400 kHz
+保留时间（重复）START 条件。
+t HDSTAI2C 经过此时间段后，会生成第一 0.6 - - us
+个时钟脉冲
+t LOWI2C SCL 时钟的低周期 1.3 - - us
+t HIGHI2C SCL 时钟的高周期 0.6 - - us
+t SUSTAI2C 重复START条件的建立时间 0.6 - - us
+t SUDATI2C 数据建立时间 100 - - ns
+t SUSTOI2C STOP条件的建立时间 0.6 - - us
+STOP和START 条件之间的总
+t BUFI2C 4.5 - - us
+线空闲时间
+表4: IIC时序说明
+ShanghaiHynitron MicroelectronicsCo.,Ltd -9-
+=== PAGE 10 ===
+上海海栎创微电子有限公司
+Hynitron Microelectronics CST816T
+应用设计规范
+电源退耦电容
+一般在芯片的 VDD 和 VSS 端并接一个 0.1uF和 10uF的瓷片电容就可以起到退藕和旁路的作用。
+退藕电容应该尽量接近芯片放置,尽量减少电流环路面积。
+CMOD滤波电容
+滤波电容使用至少10%精度的NPO/COG材质电容，其电容值的选择范围为1nF到5.6nF之间，一般选择1nF。
+具体的最佳值和相应的本体电容有关。CMOD滤波电容必须靠近芯片相应管脚放置，与芯片之间的走线越
+短越好。
+防水注意事项
+Sensor及其走线周围不要有大块的实地，对于大面积的地，必须打碎处理。
+ESD注意事项
+FPC的设计会直接影响到ESD的效果，在设计时，必须注意以下事项：
+ FPC尽量使用磁膜进行全屏蔽，同时磁膜必须接地。
+ FPC与Sensor的压和位置尽量远离组装的机构缝隙，以减少ESD的影响。
+ 电源接入处可以考虑增加TVS管到地，以增强抗ESD干扰性能。
+电磁干扰注意事项
+Sensor走线必须与可能产生干扰的线隔离开，如电源走线、音频线、LCD驱动线、蓝牙天线、RF天线等。
+特别的，TP采用全贴合设计时，有可能会受到LCD的干扰，此时TP的参数需要特别调试。
+地线
+触摸芯片内部的高精度检测线路对于地线比较敏感，如有可能用户应使用星型接地以隔绝其它芯片的噪声。
+同时，尽可能地在接地处串入磁珠以增强抗干扰能力。
+如星型接地难以实现，用户也需尽量将大电流器件的地与触控芯片地走线分开。
+ShanghaiHynitron MicroelectronicsCo.,Ltd -10-
+=== PAGE 11 ===
+上海海栎创微电子有限公司
+Hynitron Microelectronics CST816T
+电气特性
+绝对最大值参数
+符号 说明 最小值 典型值 最大值 单位
+TSTG 存放温度 -40 25 125 ℃
+Ta 通电时的工作环境温度 -20 - 85 ℃
+Vdd 相对于Vss的供电电压 -0.3 - +3.6 V
+Vio 直流输入电压 VSS-0.3 - VDD+0.3 V
+LU 栓锁电流 - 200 - mA
+表5: 绝对最大值参数
+交流电气性能（环境温度25︒C，VDDA=3.3V）
+符号 说明 最小值 典型值 最大值 单位
+Fcpu CPU频率 -2% 20 +2% MHz
+F32k 内部低速时钟频率 -5% 32 +5% kHz
+txRST 外部复位脉冲宽度 - 0.1 - mS
+tPOWERUP 从POR结束到CPU执行代码的时间 - 4 - mS
+FGPIO GPIO切换频率 - 2 - MHz
+tRISE 引脚电平上升时间，Cload=50pF - 32 - nS
+tFAIL 引脚电平下降时间，Cload=50pF - 11.2 - nS
+表6: 交流电气特性
+直流电气性能（环境温度25︒C，VDDA=3.3V）
+符号 说明 最小值 典型值 最大值 单位
+Vdd 供电电压 2.8 3.0 3.6 V
+Rpu 上拉电阻 - 5 - KΩ
+Voh 高电平输出电压 0.7*Vdd - - V
+Vol 低电平输出电压 - - 0.3*Vdd V
+Ioh 高电平输出电流 - 2.0 - mA
+Iol 低电平灌入电流 - 20.0 - mA
+Vil 输入低电平电压 - - 0.3*Vdd V
+Vih 输入高电平电压 0.7*Vdd - - V
+Iil 输入漏电流 - 10 - nA
+Idd1 工作电流（动态模式） - 1.7 - mA
+Idd2 工作电流（待机模式） - 8.0 - uA
+Idd3 工作电流（休眠模式） - 1.0 - uA
+Vddp 编程电压 2.8 - 3.6 V
+表7: 直流电气特性
+ShanghaiHynitron MicroelectronicsCo.,Ltd -11-
+=== PAGE 12 ===
+上海海栎创微电子有限公司
+Hynitron Microelectronics CST816T
+产品封装
+Dim Min. NOM. MAX.
+SYMBOL
+A 0.50 0.55 0.60
+A1 0 0.02 0.05
+A3 – 0.152REF –
+b 0.15 0.20 0.25
+D 3.00BSC
+E 3.00BSC
+D2 1.60 1.70 1.80
+E2 1.60 1.70 1.80
+e 0.40BSC
+L 0.25 0.30 0.35
+K 0.20 – –
+aaa 0.10
+bbb 0.07
+ccc 0.10
+ddd 0.05
+eee 0.08
+fff 0.10
+表8: QFN20 外形尺寸
+ShanghaiHynitron MicroelectronicsCo.,Ltd -12-
+=== PAGE 13 ===
+上海海栎创微电子有限公司
+Hynitron Microelectronics CST816T
+修订历史
+ShanghaiHynitron MicroelectronicsCo.,Ltd -13-
+=== PAGE 14 ===
+上海海栎创微电子有限公司
+Hynitron Microelectronics CST816T
+声明
+上海海栎创微电子有限公司不对本公司产品以外的任何电路使用负责，也不提供其专利许可。上海海栎创
+微电子有限公司保留在任何时间、没有任何通报的前提下修改产品资料和规格的权利。
+ShanghaiHynitron MicroelectronicsCo.,Ltd -14-

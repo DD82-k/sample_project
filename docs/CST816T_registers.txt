@@ -1,0 +1,290 @@
+=== PAGE 1 ===
+CST816T通用版本SDK寄存器说明-v1 2019-08-30
+GestureID @0x01
+Bit7 Bit6 Bit5 Bit4 Bit3 Bit2 Bit1 Bit0
+Desc. GestureID
+位 名称 描述
+[7:0] GestureID 手势码
+0x00：无手势
+0x01：上滑
+0x02：下滑
+0x03：左滑
+0x04：右滑
+0x05：单击
+0x0B：双击
+0x0C：长按
+FingerNum @0x02
+Bit7 Bit6 Bit5 Bit4 Bit3 Bit2 Bit1 Bit0
+Desc. FingerNum
+位 名称 描述
+[7:0] FingerNum 手指个数。0：无手指 1：1个手指
+XposH @0x03
+Bit7 Bit6 Bit5 Bit4 Bit3 Bit2 Bit1 Bit0
+Desc. Xpos[11:8]
+位 名称 描述
+[3:0] XPos X坐标高4位
+XposL @0x04
+Bit7 Bit6 Bit5 Bit4 Bit3 Bit2 Bit1 Bit0
+Desc. Xpos[7:0]
+位 名称 描述
+[7:0] XPos X坐标低8位
+YposH @0x05
+Bit7 Bit6 Bit5 Bit4 Bit3 Bit2 Bit1 Bit0
+Desc. Ypos[11:8]
+位 名称 描述
+[3:0] YPos Y坐标高4位
+YposL @0x06
+Bit7 Bit6 Bit5 Bit4 Bit3 Bit2 Bit1 Bit0
+Desc. Ypos[7:0]
+位 名称 描述
+[7:0] YPos Y坐标低8位
+ChipID @0xA7
+Bit7 Bit6 Bit5 Bit4 Bit3 Bit2 Bit1 Bit0
+1/14
+=== PAGE 2 ===
+CST816T通用版本SDK寄存器说明-v1 2019-08-30
+Desc. ChipID
+位 名称 描述
+[7:0] ChipID 芯片型号
+ProjID @0xA8
+Bit7 Bit6 Bit5 Bit4 Bit3 Bit2 Bit1 Bit0
+Desc. ProjID
+位 名称 描述
+[7:0] ProjID 工程编号
+FwVersion @0xA9
+Bit7 Bit6 Bit5 Bit4 Bit3 Bit2 Bit1 Bit0
+Desc. FwVersion
+位 名称 描述
+[7:0] FwVersion 软件版本号
+FactoryID @0xAA
+Bit7 Bit6 Bit5 Bit4 Bit3 Bit2 Bit1 Bit0
+Desc. FactoryID
+位 名称 描述
+[7:0] FactoryID TP厂家ID
+BPC0H @0xB0
+Bit7 Bit6 Bit5 Bit4 Bit3 Bit2 Bit1 Bit0
+Desc. BPC0[15:8]
+位 名称 描述
+[7:0] BPC0H BPC0值的高8位
+BPC0L @0xB1
+Bit7 Bit6 Bit5 Bit4 Bit3 Bit2 Bit1 Bit0
+Desc. BPC0[7:0]
+位 名称 描述
+[7:0] BPC0L BPC0值的低8位
+BPC1H @0xB2
+Bit7 Bit6 Bit5 Bit4 Bit3 Bit2 Bit1 Bit0
+Desc. BPC1[15:8]
+位 名称 描述
+[7:0] BPC1H BPC1值的高8位
+BPC1L @0xB3
+Bit7 Bit6 Bit5 Bit4 Bit3 Bit2 Bit1 Bit0
+Desc. BPC1[7:0]
+位 名称 描述
+[7:0] BPC1L BPC1值的低8位
+2/14
+=== PAGE 3 ===
+CST816T通用版本SDK寄存器说明-v1 2019-08-30
+CDCRes @0xC0 0 U8 b_ScanRes;
+1 U8 b_ScanFreq;
+CDCFreq @0xC1 2 U8 b_ScanIdac;
+3 res0
+CDCIdac @0xC2 4 res1
+5 res2
+CDC 6 res3
+7 res4
+8 res5
+9 res6
+10 res7
+11 sNum
+12 s0
+13 s1
+14 s2
+15 s3
+16 s4
+17 s5
+18 s6
+19 s7
+20 s8
+21 s9
+22 s10
+23 s11
+24 s12
+25 s13
+26 s14
+27 s15
+28 s16
+29 s17
+30 s18
+31 s19
+SleepMode @0xE5
+Bit7 Bit6 Bit5 Bit4 Bit3 Bit2 Bit1 Bit0
+Desc. SLEEPMODE
+位 名称 描述
+[7:0] SleepMode 值为0x03时进入休眠状态（无触摸唤醒功能）
+ErrResetCtl @0xEA
+Bit7 Bit6 Bit5 Bit4 Bit3 Bit2 Bit1 Bit0
+3/14
+=== PAGE 4 ===
+CST816T通用版本SDK寄存器说明-v1 2019-08-30
+Desc. EnFatRst En2FRst
+位 名称 描述
+[1] EnFatRst 使能大面积触摸复位功能
+[0] En2FRst 使能双指复位功能
+LongPressTick @0xEB
+Bit7 Bit6 Bit5 Bit4 Bit3 Bit2 Bit1 Bit0
+Desc. LongPressTick
+位 名称 描述
+[7：0] LongPressTick 长按时间门限，默认为100。大约1S
+MotionMask @0xEC
+Bit7 Bit6 Bit5 Bit4 Bit3 Bit2 Bit1 Bit0
+Desc. EnConLR EnConUD EnDClick
+位 名称 描述
+[2] EnConLR 能使连续左右滑动的动作
+[1] EnConUD 使能连续上下滑动的动作
+[0] EnDClick 使能双击的动作
+IrqPluseWidth @0xED
+Bit7 Bit6 Bit5 Bit4 Bit3 Bit2 Bit1 Bit0
+Desc. IrqPluseWidth
+位 名称 描述
+[7:0] IrqPluseWidth 中断低脉冲输出宽度。
+单位0.1ms，可选值：1～200。默认值为10。
+NorScanPer @0xEE
+Bit7 Bit6 Bit5 Bit4 Bit3 Bit2 Bit1 Bit0
+Desc. NorScanPer
+位 名称 描述
+[7:0] NorScanPer 正常快速检测周期。
+此值会影响到LpAutoWakeTime和AutoSleepTime。
+单位10ms，可选值：1～30。默认值为1。
+MotionSlAngle @0xEF
+Bit7 Bit6 Bit5 Bit4 Bit3 Bit2 Bit1 Bit0
+Desc. MotionSlAngle
+位 名称 描述
+[7:0] MotionSlAngle 手势检测滑动分区角度控制。Angle=tan(c)*10
+c为以x轴正方向为基准的角度。
+LpScanRaw1H @0xF0
+Bit7 Bit6 Bit5 Bit4 Bit3 Bit2 Bit1 Bit0
+Desc. LpScanRaw1H
+位 名称 描述
+[7:0] LpScanRaw1H 低功耗扫描1号通道的基准值的高8位。
+4/14
+=== PAGE 5 ===
+CST816T通用版本SDK寄存器说明-v1 2019-08-30
+LpScanRaw1L @0xF1
+Bit7 Bit6 Bit5 Bit4 Bit3 Bit2 Bit1 Bit0
+Desc. LpScanRaw1L
+位 名称 描述
+[7:0] LpScanRaw1L 低功耗扫描1号通道的基准值的低8位。
+LpScanRaw2H @0xF2
+Bit7 Bit6 Bit5 Bit4 Bit3 Bit2 Bit1 Bit0
+Desc. LpScanRaw2H
+位 名称 描述
+[7:0] LpScanRaw2H 低功耗扫描1号通道的基准值的高8位。
+LpScanRaw2L @0xF3
+Bit7 Bit6 Bit5 Bit4 Bit3 Bit2 Bit1 Bit0
+Desc. LpScanRaw2L
+位 名称 描述
+[7:0] LpScanRaw2L 低功耗扫描1号通道的基准值的低8位。
+LpAutoWakeTime @0xF4
+Bit7 Bit6 Bit5 Bit4 Bit3 Bit2 Bit1 Bit0
+Desc. LpAutoWakeTime
+位 名称 描述
+[7:0] LpAutoWakeTime 低功耗时自动重校正周期。
+单位1分钟，可选值：1～5。默认值为5。
+LpScanTH @0xF5
+Bit7 Bit6 Bit5 Bit4 Bit3 Bit2 Bit1 Bit0
+Desc. LpScanTH
+位 名称 描述
+[7:0] LpScanTH 低功耗扫描唤醒门限。越小越灵敏。
+可选值：1～255。默认值为48。
+LpScanWin @0xF6
+Bit7 Bit6 Bit5 Bit4 Bit3 Bit2 Bit1 Bit0
+Desc. LpScanWin
+位 名称 描述
+[7:0] LpScanWin 低功耗扫描量程。越大越灵敏，功耗越高。
+可选值：0，1，2，3。默认值为3。
+LpScanFreq @0xF7
+Bit7 Bit6 Bit5 Bit4 Bit3 Bit2 Bit1 Bit0
+Desc. LpScanFreq
+位 名称 描述
+[7:0] LpScanFreq 低功耗扫描频率。越小越灵敏。
+可选值：1～255。默认值为7。
+LpScanIdac @0xF8
+5/14
+=== PAGE 6 ===
+CST816T通用版本SDK寄存器说明-v1 2019-08-30
+Bit7 Bit6 Bit5 Bit4 Bit3 Bit2 Bit1 Bit0
+Desc. LpScanIdac
+位 名称 描述
+[7:0] LpScanIdac 低功耗扫描电流。越小越灵敏。
+可选值：1～255。
+AutoSleepTime @0xF9
+Bit7 Bit6 Bit5 Bit4 Bit3 Bit2 Bit1 Bit0
+Desc. AutoSleepTime
+位 名称 描述
+[7:0] AutoSleepTime x秒内无触摸时，自动进入低功耗模式。
+单位1S，默认值为2S。
+IrqCtl @0xFA
+Bit7 Bit6 Bit5 Bit4 Bit3 Bit2 Bit1 Bit0
+Desc. EnTest EnTouch EnChange EnMotion OnceWLP
+位 名称 描述
+[7] EnTest 中断引脚测试，使能后自动周期性发出低脉冲。
+[6] EnTouch 检测到触摸时，周期性发出低脉冲。
+[5] EnChange 检测到触摸状态变化时，发出低脉冲。
+[4] EnMotion 检测到手势时，发出低脉冲。
+[0] OnceWLP 长按手势只发出一个低脉冲信号。
+AutoReset @0xFB
+Bit7 Bit6 Bit5 Bit4 Bit3 Bit2 Bit1 Bit0
+Desc. DebouceTime
+位 名称 描述
+[7:0] DebounceTime x秒内有触摸但无有效手势时，自动复位。
+单位1S，为0时不启用此功能。默认为5。
+LongPressTime @0xFC
+Bit7 Bit6 Bit5 Bit4 Bit3 Bit2 Bit1 Bit0
+Desc. LongPressTime
+位 名称 描述
+[7:0] LongPressTime 长按x秒后自动复位。
+单位1S，为0时不启用此功能。默认为10。
+IOCtl @0xFD
+Bit7 Bit6 Bit5 Bit4 Bit3 Bit2 Bit1 Bit0
+Desc. SOFT_RST IIC_OD En1v8
+位 名称 描述
+[2] SOFT_RST 主控通过拉低IRQ引脚实现触控的软复位功能。
+0：禁止软复位。
+1：使能软复位。
+[1] IIC_OD IIC引脚驱动模式，默认为电阻上拉。
+0：电阻上拉
+1：OD
+6/14
+=== PAGE 7 ===
+CST816T通用版本SDK寄存器说明-v1 2019-08-30
+[0] En1v8 IIC和IRQ引脚电平选择，默认为VDD电平。
+0：VDD
+1：1.8V
+DisAutoSleep @0xFE
+Bit7 Bit6 Bit5 Bit4 Bit3 Bit2 Bit1 Bit0
+Desc. DisAutoSleep
+位 名称 描述
+[7:0] DisAutoSleep 默认为0，使能自动进入低功耗模式。
+为非0值时，禁止自动进入低功耗模式。
+7/14
+=== PAGE 8 ===
+CST816T通用版本SDK寄存器说明-v1 2019-08-30
+8/14
+=== PAGE 9 ===
+CST816T通用版本SDK寄存器说明-v1 2019-08-30
+9/14
+=== PAGE 10 ===
+CST816T通用版本SDK寄存器说明-v1 2019-08-30
+10/14
+=== PAGE 11 ===
+CST816T通用版本SDK寄存器说明-v1 2019-08-30
+11/14
+=== PAGE 12 ===
+CST816T通用版本SDK寄存器说明-v1 2019-08-30
+12/14
+=== PAGE 13 ===
+CST816T通用版本SDK寄存器说明-v1 2019-08-30
+13/14
+=== PAGE 14 ===
+CST816T通用版本SDK寄存器说明-v1 2019-08-30
+14/14
