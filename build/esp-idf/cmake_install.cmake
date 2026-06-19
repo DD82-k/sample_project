@@ -414,6 +414,16 @@ endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
+  include("D:/esp32Project/sample_project/build/esp-idf/jbrilha__esp_lcd_st7789/cmake_install.cmake")
+endif()
+
+if(NOT CMAKE_INSTALL_LOCAL_ONLY)
+  # Include the install script for the subdirectory.
+  include("D:/esp32Project/sample_project/build/esp-idf/lcd_st7789/cmake_install.cmake")
+endif()
+
+if(NOT CMAKE_INSTALL_LOCAL_ONLY)
+  # Include the install script for the subdirectory.
   include("D:/esp32Project/sample_project/build/esp-idf/espressif__esp_lcd_touch/cmake_install.cmake")
 endif()
 
@@ -424,7 +434,12 @@ endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
-  include("D:/esp32Project/sample_project/build/esp-idf/jbrilha__esp_lcd_st7789/cmake_install.cmake")
+  include("D:/esp32Project/sample_project/build/esp-idf/touch_cst816t/cmake_install.cmake")
+endif()
+
+if(NOT CMAKE_INSTALL_LOCAL_ONLY)
+  # Include the install script for the subdirectory.
+  include("D:/esp32Project/sample_project/build/esp-idf/lvgl_port/cmake_install.cmake")
 endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)

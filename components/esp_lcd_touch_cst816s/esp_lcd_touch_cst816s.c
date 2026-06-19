@@ -32,7 +32,6 @@ static esp_err_t esp_lcd_touch_cst816s_del(esp_lcd_touch_handle_t tp);
 static esp_err_t touch_cst816s_i2c_read(esp_lcd_touch_handle_t tp, uint16_t reg, uint8_t *data, uint8_t len);
 
 static esp_err_t touch_cst816s_reset(esp_lcd_touch_handle_t tp);
-static esp_err_t touch_cst816s_disable_auto_sleep(void);
 static esp_err_t touch_cst816s_read_id(esp_lcd_touch_handle_t tp);
 
 esp_err_t esp_lcd_touch_new_i2c_cst816s(const esp_lcd_panel_io_handle_t io, const esp_lcd_touch_config_t *config, esp_lcd_touch_handle_t *tp)
@@ -82,24 +81,19 @@ esp_err_t esp_lcd_touch_new_i2c_cst816s(const esp_lcd_panel_io_handle_t io, cons
         gpio_set_level(cst816s->config.rst_gpio_num, !cst816s->config.levels.reset);
         vTaskDelay(pdMS_TO_TICKS(1));
     }
-    /* Reset controller */
+    /* Reset controller + disable auto-sleep so touch is always responsive.
+       Use touch_cst816t_sleep() / touch_cst816t_wakeup() for power management. */
     ESP_GOTO_ON_ERROR(touch_cst816s_reset(cst816s), err, TAG, "Reset failed");
-
-    /* Probe I2C to wake chip, then disable auto-sleep. Retry once if needed. */
-    for (int attempt = 0; attempt < 2; attempt++) {
-        /* Wake-up probe */
-        i2c_cmd_handle_t probe = i2c_cmd_link_create();
-        i2c_master_start(probe);
-        i2c_master_write_byte(probe, (0x15 << 1) | I2C_MASTER_WRITE, true);
-        i2c_master_stop(probe);
-        i2c_master_cmd_begin(0, probe, pdMS_TO_TICKS(50));
-        i2c_cmd_link_delete(probe);
-
-        if (touch_cst816s_disable_auto_sleep() == ESP_OK) {
-            break;
-        }
-        ESP_LOGW(TAG, "Disable auto-sleep attempt %d failed, retrying...", attempt + 1);
-        touch_cst816s_reset(cst816s);
+    {
+        i2c_cmd_handle_t c = i2c_cmd_link_create();
+        i2c_master_start(c);
+        i2c_master_write_byte(c, (0x15 << 1) | I2C_MASTER_WRITE, true);
+        i2c_master_write_byte(c, 0xFE, true);
+        i2c_master_write_byte(c, 0x01, true);
+        i2c_master_stop(c);
+        esp_err_t r = i2c_master_cmd_begin(0, c, pdMS_TO_TICKS(50));
+        i2c_cmd_link_delete(c);
+        ESP_LOGI(TAG, "Disable auto-sleep: %s", r == ESP_OK ? "OK" : "FAILED");
     }
     vTaskDelay(pdMS_TO_TICKS(50));
 
@@ -209,22 +203,6 @@ static esp_err_t touch_cst816s_reset(esp_lcd_touch_handle_t tp)
     return ESP_OK;
 }
 
-/* Write 0x01 to DisAutoSleep register (0xFE) via raw I2C.
-   CST816T enables auto-sleep by default — after 2s no-touch, I2C stops working.
-   Raw I2C is used because panel IO is unreliable for CST816T communication. */
-static esp_err_t touch_cst816s_disable_auto_sleep(void)
-{
-    i2c_cmd_handle_t cmd = i2c_cmd_link_create();
-    i2c_master_start(cmd);
-    i2c_master_write_byte(cmd, (0x15 << 1) | I2C_MASTER_WRITE, true);
-    i2c_master_write_byte(cmd, 0xFE, true);
-    i2c_master_write_byte(cmd, 0x01, true);
-    i2c_master_stop(cmd);
-    esp_err_t ret = i2c_master_cmd_begin(0, cmd, pdMS_TO_TICKS(50));
-    i2c_cmd_link_delete(cmd);
-    return ret;
-}
-
 static esp_err_t touch_cst816s_read_id(esp_lcd_touch_handle_t tp)
 {
     ESP_RETURN_ON_FALSE(tp != NULL, ESP_ERR_INVALID_ARG, TAG, "Touch controller handle can't be NULL");
@@ -240,26 +218,20 @@ static esp_err_t touch_cst816s_i2c_read(esp_lcd_touch_handle_t tp, uint16_t reg,
     ESP_RETURN_ON_FALSE(tp != NULL, ESP_ERR_INVALID_ARG, TAG, "Touch controller handle can't be NULL");
     ESP_RETURN_ON_FALSE(data != NULL, ESP_ERR_INVALID_ARG, TAG, "Pointer to the data array can't be NULL");
 
-    /* Retry rapidly like Arduino library — CST816T I2C is intermittent but
-       repeated attempts eventually succeed (verified in monitor tests). */
-    for (int attempt = 0; attempt < 100; attempt++) {
+    /* Fast retry: chip I2C is flaky. 10 rapid attempts, each ~1ms. */
+    for (int attempt = 0; attempt < 50; attempt++) {
         i2c_cmd_handle_t cmd = i2c_cmd_link_create();
         i2c_master_start(cmd);
         i2c_master_write_byte(cmd, (0x15 << 1) | I2C_MASTER_WRITE, true);
         i2c_master_write_byte(cmd, reg, true);
-        i2c_master_start(cmd);  /* RESTART */
+        i2c_master_start(cmd);
         i2c_master_write_byte(cmd, (0x15 << 1) | I2C_MASTER_READ, true);
-        if (len > 1) {
-            i2c_master_read(cmd, data, len - 1, I2C_MASTER_ACK);
-        }
+        if (len > 1) i2c_master_read(cmd, data, len - 1, I2C_MASTER_ACK);
         i2c_master_read_byte(cmd, data + len - 1, I2C_MASTER_NACK);
         i2c_master_stop(cmd);
-        esp_err_t ret = i2c_master_cmd_begin(0, cmd, pdMS_TO_TICKS(50));
+        esp_err_t ret = i2c_master_cmd_begin(0, cmd, pdMS_TO_TICKS(5));
         i2c_cmd_link_delete(cmd);
-
-        if (ret == ESP_OK) {
-            return ESP_OK;
-        }
+        if (ret == ESP_OK) return ESP_OK;
     }
     return ESP_FAIL;
 }

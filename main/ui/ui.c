@@ -14,7 +14,6 @@ lv_anim_t * sec_Animation(lv_obj_t * TargetObject, int delay);
 lv_anim_t * scrolldot_Animation(lv_obj_t * TargetObject, int delay);
 
 // EVENTS
-void ui_event____initial_actions0(lv_event_t * e);
 lv_obj_t * ui____initial_actions0;
 
 // IMAGES AND IMAGE SETS
@@ -220,45 +219,20 @@ lv_anim_t * scrolldot_Animation(lv_obj_t * TargetObject, int delay)
 }
 
 ///////////////////// FUNCTIONS ////////////////////
-void ui_event____initial_actions0(lv_event_t * e)
-{
-    lv_event_code_t event_code = lv_event_get_code(e);
-
-    if(event_code == LV_EVENT_SCREEN_LOAD_START) {
-        sec_Animation(ui_Sec, 0);
-    }
-}
 
 ///////////////////// SCREENS ////////////////////
 
 void ui_init(void)
 {
-    LV_EVENT_GET_COMP_CHILD = lv_event_register_id();
-
     lv_disp_t * dispp = lv_display_get_default();
     lv_theme_t * theme = lv_theme_simple_init(dispp);
     lv_disp_set_theme(dispp, theme);
     ui_Splash_screen_init();
-    ui_Clock_screen_init();
-    ui_Call_screen_init();
-    ui_Chat_screen_init();
-    ui_Music_Player_screen_init();
-    ui_Weather_screen_init();
-    ui_Alarm_screen_init();
     ui____initial_actions0 = lv_obj_create(NULL);
-    lv_obj_add_event_cb(ui____initial_actions0, ui_event____initial_actions0, LV_EVENT_ALL, NULL);
-
-    lv_disp_load_scr(ui____initial_actions0);
     lv_disp_load_scr(ui_Splash);
 }
 
 void ui_destroy(void)
 {
     ui_Splash_screen_destroy();
-    ui_Clock_screen_destroy();
-    ui_Call_screen_destroy();
-    ui_Chat_screen_destroy();
-    ui_Music_Player_screen_destroy();
-    ui_Weather_screen_destroy();
-    ui_Alarm_screen_destroy();
 }

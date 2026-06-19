@@ -13,20 +13,12 @@ extern "C" {
 #include "lvgl.h"
 
 #include "ui_helpers.h"
-#include "components/ui_comp.h"
-#include "components/ui_comp_hook.h"
 #include "ui_events.h"
 
 
 ///////////////////// SCREENS ////////////////////
 
 #include "screens/ui_Splash.h"
-#include "screens/ui_Clock.h"
-#include "screens/ui_Call.h"
-#include "screens/ui_Chat.h"
-#include "screens/ui_Music_Player.h"
-#include "screens/ui_Weather.h"
-#include "screens/ui_Alarm.h"
 
 ///////////////////// VARIABLES ////////////////////
 
@@ -38,30 +30,10 @@ extern lv_anim_t * scrolldot_Animation(lv_obj_t * TargetObject, int delay);
 
 // EVENTS
 
-void ui_event____initial_actions0(lv_event_t * e);
 extern lv_obj_t * ui____initial_actions0;
 
-// IMAGES AND IMAGE SETS
-LV_IMG_DECLARE(ui_img_sls_logo_png);    // assets/sls_logo.png
-LV_IMG_DECLARE(ui_img_pattern_png);    // assets/pattern.png
-LV_IMG_DECLARE(ui_img_clock_min_png);    // assets/clock_min.png
-LV_IMG_DECLARE(ui_img_clock_hour_png);    // assets/clock_hour.png
-LV_IMG_DECLARE(ui_img_clock_sec_png);    // assets/clock_sec.png
-LV_IMG_DECLARE(ui_img_phone_png);    // assets/phone.png
-LV_IMG_DECLARE(ui_img_avatar_png);    // assets/avatar.png
-LV_IMG_DECLARE(ui_img_chatbox_png);    // assets/chatbox.png
-LV_IMG_DECLARE(ui_img_chatbox2_png);    // assets/chatbox2.png
-LV_IMG_DECLARE(ui_img_play_png);    // assets/play.png
-LV_IMG_DECLARE(ui_img_album_png);    // assets/album.png
-LV_IMG_DECLARE(ui_img_backward_png);    // assets/backward.png
-LV_IMG_DECLARE(ui_img_forward_png);    // assets/forward.png
-LV_IMG_DECLARE(ui_img_cloud_png);    // assets/cloud.png
-LV_IMG_DECLARE(ui_img_weather_1_png);    // assets/weather_1.png
-LV_IMG_DECLARE(ui_img_weather_2_png);    // assets/weather_2.png
-LV_IMG_DECLARE(ui_img_weather_3_png);    // assets/weather_3.png
-
 // FONTS
-LV_FONT_DECLARE(ui_font_Number);
+LV_FONT_DECLARE(ui_font_Font1);
 
 // UI INIT
 void ui_init(void);

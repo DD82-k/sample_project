@@ -1114,6 +1114,25 @@ rule C_STATIC_LIBRARY_LINKER____idf_esp_https_ota_
 #############################################
 # Rule for compiling C files.
 
+rule C_COMPILER____idf_esp_psram_
+  depfile = $DEP_FILE
+  deps = gcc
+  command = D:\Program_download\Espressif\tools\xtensa-esp32s3-elf\esp-12.2.0_20230208\xtensa-esp32s3-elf\bin\xtensa-esp32s3-elf-gcc.exe $DEFINES $INCLUDES $FLAGS -MD -MT $out -MF $DEP_FILE -o $out -c $in
+  description = Building C object $out
+
+
+#############################################
+# Rule for linking C static library.
+
+rule C_STATIC_LIBRARY_LINKER____idf_esp_psram_
+  command = cmd.exe /C "$PRE_LINK && D:\Program_download\Espressif\tools\cmake\3.24.0\bin\cmake.exe -E rm -f $TARGET_FILE && D:\Program_download\Espressif\tools\xtensa-esp32s3-elf\esp-12.2.0_20230208\xtensa-esp32s3-elf\bin\xtensa-esp32s3-elf-ar.exe qc $TARGET_FILE $LINK_FLAGS $in && D:\Program_download\Espressif\tools\xtensa-esp32s3-elf\esp-12.2.0_20230208\xtensa-esp32s3-elf\bin\xtensa-esp32s3-elf-ranlib.exe $TARGET_FILE && $POST_BUILD"
+  description = Linking C static library $TARGET_FILE
+  restat = $RESTAT
+
+
+#############################################
+# Rule for compiling C files.
+
 rule C_COMPILER____idf_esp_lcd_
   depfile = $DEP_FILE
   deps = gcc
@@ -1449,6 +1468,44 @@ rule C_STATIC_LIBRARY_LINKER____idf_lvgl__lvgl_
 #############################################
 # Rule for compiling C files.
 
+rule C_COMPILER____idf_jbrilha__esp_lcd_st7789_
+  depfile = $DEP_FILE
+  deps = gcc
+  command = D:\Program_download\Espressif\tools\xtensa-esp32s3-elf\esp-12.2.0_20230208\xtensa-esp32s3-elf\bin\xtensa-esp32s3-elf-gcc.exe $DEFINES $INCLUDES $FLAGS -MD -MT $out -MF $DEP_FILE -o $out -c $in
+  description = Building C object $out
+
+
+#############################################
+# Rule for linking C static library.
+
+rule C_STATIC_LIBRARY_LINKER____idf_jbrilha__esp_lcd_st7789_
+  command = cmd.exe /C "$PRE_LINK && D:\Program_download\Espressif\tools\cmake\3.24.0\bin\cmake.exe -E rm -f $TARGET_FILE && D:\Program_download\Espressif\tools\xtensa-esp32s3-elf\esp-12.2.0_20230208\xtensa-esp32s3-elf\bin\xtensa-esp32s3-elf-ar.exe qc $TARGET_FILE $LINK_FLAGS $in && D:\Program_download\Espressif\tools\xtensa-esp32s3-elf\esp-12.2.0_20230208\xtensa-esp32s3-elf\bin\xtensa-esp32s3-elf-ranlib.exe $TARGET_FILE && $POST_BUILD"
+  description = Linking C static library $TARGET_FILE
+  restat = $RESTAT
+
+
+#############################################
+# Rule for compiling C files.
+
+rule C_COMPILER____idf_lcd_st7789_
+  depfile = $DEP_FILE
+  deps = gcc
+  command = D:\Program_download\Espressif\tools\xtensa-esp32s3-elf\esp-12.2.0_20230208\xtensa-esp32s3-elf\bin\xtensa-esp32s3-elf-gcc.exe $DEFINES $INCLUDES $FLAGS -MD -MT $out -MF $DEP_FILE -o $out -c $in
+  description = Building C object $out
+
+
+#############################################
+# Rule for linking C static library.
+
+rule C_STATIC_LIBRARY_LINKER____idf_lcd_st7789_
+  command = cmd.exe /C "$PRE_LINK && D:\Program_download\Espressif\tools\cmake\3.24.0\bin\cmake.exe -E rm -f $TARGET_FILE && D:\Program_download\Espressif\tools\xtensa-esp32s3-elf\esp-12.2.0_20230208\xtensa-esp32s3-elf\bin\xtensa-esp32s3-elf-ar.exe qc $TARGET_FILE $LINK_FLAGS $in && D:\Program_download\Espressif\tools\xtensa-esp32s3-elf\esp-12.2.0_20230208\xtensa-esp32s3-elf\bin\xtensa-esp32s3-elf-ranlib.exe $TARGET_FILE && $POST_BUILD"
+  description = Linking C static library $TARGET_FILE
+  restat = $RESTAT
+
+
+#############################################
+# Rule for compiling C files.
+
 rule C_COMPILER____idf_espressif__esp_lcd_touch_
   depfile = $DEP_FILE
   deps = gcc
@@ -1487,7 +1544,7 @@ rule C_STATIC_LIBRARY_LINKER____idf_esp_lcd_touch_cst816s_
 #############################################
 # Rule for compiling C files.
 
-rule C_COMPILER____idf_jbrilha__esp_lcd_st7789_
+rule C_COMPILER____idf_touch_cst816t_
   depfile = $DEP_FILE
   deps = gcc
   command = D:\Program_download\Espressif\tools\xtensa-esp32s3-elf\esp-12.2.0_20230208\xtensa-esp32s3-elf\bin\xtensa-esp32s3-elf-gcc.exe $DEFINES $INCLUDES $FLAGS -MD -MT $out -MF $DEP_FILE -o $out -c $in
@@ -1497,7 +1554,26 @@ rule C_COMPILER____idf_jbrilha__esp_lcd_st7789_
 #############################################
 # Rule for linking C static library.
 
-rule C_STATIC_LIBRARY_LINKER____idf_jbrilha__esp_lcd_st7789_
+rule C_STATIC_LIBRARY_LINKER____idf_touch_cst816t_
+  command = cmd.exe /C "$PRE_LINK && D:\Program_download\Espressif\tools\cmake\3.24.0\bin\cmake.exe -E rm -f $TARGET_FILE && D:\Program_download\Espressif\tools\xtensa-esp32s3-elf\esp-12.2.0_20230208\xtensa-esp32s3-elf\bin\xtensa-esp32s3-elf-ar.exe qc $TARGET_FILE $LINK_FLAGS $in && D:\Program_download\Espressif\tools\xtensa-esp32s3-elf\esp-12.2.0_20230208\xtensa-esp32s3-elf\bin\xtensa-esp32s3-elf-ranlib.exe $TARGET_FILE && $POST_BUILD"
+  description = Linking C static library $TARGET_FILE
+  restat = $RESTAT
+
+
+#############################################
+# Rule for compiling C files.
+
+rule C_COMPILER____idf_lvgl_port_
+  depfile = $DEP_FILE
+  deps = gcc
+  command = D:\Program_download\Espressif\tools\xtensa-esp32s3-elf\esp-12.2.0_20230208\xtensa-esp32s3-elf\bin\xtensa-esp32s3-elf-gcc.exe $DEFINES $INCLUDES $FLAGS -MD -MT $out -MF $DEP_FILE -o $out -c $in
+  description = Building C object $out
+
+
+#############################################
+# Rule for linking C static library.
+
+rule C_STATIC_LIBRARY_LINKER____idf_lvgl_port_
   command = cmd.exe /C "$PRE_LINK && D:\Program_download\Espressif\tools\cmake\3.24.0\bin\cmake.exe -E rm -f $TARGET_FILE && D:\Program_download\Espressif\tools\xtensa-esp32s3-elf\esp-12.2.0_20230208\xtensa-esp32s3-elf\bin\xtensa-esp32s3-elf-ar.exe qc $TARGET_FILE $LINK_FLAGS $in && D:\Program_download\Espressif\tools\xtensa-esp32s3-elf\esp-12.2.0_20230208\xtensa-esp32s3-elf\bin\xtensa-esp32s3-elf-ranlib.exe $TARGET_FILE && $POST_BUILD"
   description = Linking C static library $TARGET_FILE
   restat = $RESTAT

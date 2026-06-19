@@ -13,12 +13,14 @@ extern "C" {
 // SCREEN: ui_Splash
 extern void ui_Splash_screen_init(void);
 extern void ui_Splash_screen_destroy(void);
-extern void ui_event_Splash(lv_event_t * e);
 extern lv_obj_t * ui_Splash;
-extern lv_obj_t * ui_Demo;
-extern lv_obj_t * ui_Smart_Gadget;
-extern lv_obj_t * ui_SLS_Logo;
+extern lv_obj_t * ui_LabelContent;
+extern lv_obj_t * ui_LabelTime;
+extern void ui_event_ButtonClear(lv_event_t * e);
+extern lv_obj_t * ui_ButtonClear;
+extern lv_obj_t * ui_Label4;
 // CUSTOM VARIABLES
+extern lv_obj_t * uic_LabelContent;
 
 #ifdef __cplusplus
 } /*extern "C"*/
