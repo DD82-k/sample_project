@@ -1,4 +1,4 @@
-/* * Data converted from D:/esp32Project/sample_project/build/esp-idf/mbedtls/x509_crt_bundle
+/* * Data converted from C:/Users/Lenovo/Desktop/esp32_newproject/sample_project/build/esp-idf/mbedtls/x509_crt_bundle
  */
 .data
 .section .rodata.embedded

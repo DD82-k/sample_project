@@ -2,6 +2,7 @@
  * P169H002-CTP Smartwatch
  * ST7789 LCD (240x280) + CST816T touch + LVGL v9
  */
+#include <stdio.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "lcd_st7789.h"
@@ -18,12 +19,13 @@ void Button_Clear(lv_event_t * e)
 
 void app_main(void)
 {
+    printf("Start\n");
     esp_lcd_panel_handle_t lcd   = lcd_st7789_init();
     esp_lcd_touch_handle_t touch = touch_cst816t_init();
     lvgl_port_init(lcd, touch);
     ui_init();
     lvgl_port_start();
-
+    
     while (1) {
         vTaskDelay(pdMS_TO_TICKS(1000));
     }
