@@ -1,0 +1,22 @@
+# ESP-IDF build outputs (local only, fullclean regenerates)
+build/
+
+# SDK configuration (generated per-machine, use sdkconfig.defaults)
+sdkconfig
+sdkconfig.old
+
+# Flash / binary artifacts
+*.bin
+*.elf
+*.map
+*.hex
+
+# IDE / editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+Thumbs.db
+.DS_Store
