@@ -4,6 +4,7 @@
  */
 #include <time.h>
 #include <sys/time.h>
+#include <stdio.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "lcd_st7789.h"
@@ -48,6 +49,8 @@ void app_main(void)
         struct timeval tv = { .tv_sec = mktime(&tm), .tv_usec = 0 };
         settimeofday(&tv, NULL);
     }
+
+    printf("Start\n");
 
     esp_lcd_panel_handle_t lcd   = lcd_st7789_init();
     esp_lcd_touch_handle_t touch = touch_cst816t_init();

@@ -3,5 +3,6 @@
   "idf.portWin": "COM7",
   "idf.customExtraVars": {
     "IDF_TARGET": "esp32s3"
-  }
+  },
+  "idf.currentSetup": "D:/esp32_s3/idf/Espressif/frameworks/esp-idf-v5.1.2/"
 }
