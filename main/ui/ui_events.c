@@ -5,4 +5,4 @@
 
 #include "ui.h"
 
-// Button_Clear moved to main.c to survive SquareLine re-export
+// Button_Clear is defined in main.c

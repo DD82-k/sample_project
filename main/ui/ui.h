@@ -33,7 +33,7 @@ extern lv_anim_t * scrolldot_Animation(lv_obj_t * TargetObject, int delay);
 extern lv_obj_t * ui____initial_actions0;
 
 // FONTS
-LV_FONT_DECLARE(ui_font_Font1);
+LV_FONT_DECLARE(ui_font_font3Alibaba);
 
 // UI INIT
 void ui_init(void);

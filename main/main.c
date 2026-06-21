@@ -10,6 +10,7 @@
 #include "ui/ui.h"
 
 extern lv_obj_t * uic_LabelContent;
+extern lv_obj_t * ui_Splash;
 
 void Button_Clear(lv_event_t * e)
 {
@@ -22,6 +23,7 @@ void app_main(void)
     esp_lcd_touch_handle_t touch = touch_cst816t_init();
     lvgl_port_init(lcd, touch);
     ui_init();
+
     lvgl_port_start();
 
     while (1) {

@@ -7,10 +7,11 @@
 
 lv_obj_t * uic_LabelContent;
 lv_obj_t * ui_Splash = NULL;
-lv_obj_t * ui_LabelContent = NULL;
 lv_obj_t * ui_LabelTime = NULL;
 lv_obj_t * ui_ButtonClear = NULL;
 lv_obj_t * ui_Label4 = NULL;
+lv_obj_t * ui_Panel1 = NULL;
+lv_obj_t * ui_LabelContent = NULL;
 // event funtions
 void ui_event_ButtonClear(lv_event_t * e)
 {
@@ -29,14 +30,6 @@ void ui_Splash_screen_init(void)
     lv_obj_remove_flag(ui_Splash, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
     lv_obj_set_style_bg_color(ui_Splash, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_opa(ui_Splash, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-
-    ui_LabelContent = lv_label_create(ui_Splash);
-    lv_obj_set_width(ui_LabelContent, lv_pct(100));
-    lv_obj_set_height(ui_LabelContent, lv_pct(80));
-    lv_obj_set_align(ui_LabelContent, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_LabelContent, "hello");
-    lv_obj_remove_flag(ui_LabelContent, LV_OBJ_FLAG_SCROLL_CHAIN);      /// Flags
-    lv_obj_set_style_text_font(ui_LabelContent, &ui_font_Font1, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_LabelTime = lv_label_create(ui_Splash);
     lv_obj_set_width(ui_LabelTime, lv_pct(100));
@@ -61,7 +54,24 @@ void ui_Splash_screen_init(void)
     lv_obj_set_style_text_color(ui_Label4, lv_color_hex(0xF6EFEF), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_Label4, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_align(ui_Label4, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_font(ui_Label4, &ui_font_Font1, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_Label4, &ui_font_font3Alibaba, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_Panel1 = lv_obj_create(ui_Splash);
+    lv_obj_set_width(ui_Panel1, lv_pct(100));
+    lv_obj_set_height(ui_Panel1, lv_pct(80));
+    lv_obj_set_align(ui_Panel1, LV_ALIGN_CENTER);
+    lv_obj_set_flex_flow(ui_Panel1, LV_FLEX_FLOW_COLUMN);
+    lv_obj_set_flex_align(ui_Panel1, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_START);
+    lv_obj_set_scroll_dir(ui_Panel1, LV_DIR_VER);
+
+    ui_LabelContent = lv_label_create(ui_Panel1);
+    lv_obj_set_width(ui_LabelContent, lv_pct(100));
+    lv_obj_set_height(ui_LabelContent, LV_SIZE_CONTENT);    /// 0
+    lv_obj_set_align(ui_LabelContent, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_LabelContent,
+                      "今天我们来测试一下LVGL的文本滚动功能，这段文字会不断增加内容，让它超出控件的显示范围，这样就能验证上下滑动是否正常工作了。\n语音翻译功能在实际使用中会产生大量的对话记录，这些记录需要能被用户自由上下翻阅，查看历史对话内容，所以滚动功能是非常关键的一环。\n我们先模拟一段对话：\n用户：你好，请问今天天气怎么样？\n翻译：Hello, what's the weather like today?\n用户：我想去公园散步，需要带伞吗？\n翻译：I want to go for a walk in the park. Do I need to bring an umbrella?\n用户：听说下午会下雨，你有什么建议吗？\n翻译：I heard it will rain this afternoon. What suggestions do you have?\n用户：那我还是待在家里看书吧，顺便泡一杯热茶。\n翻译：Then I'll just stay home and read a book, and make a cup of hot tea by the way.\n用户：你能推荐一本好书吗？\n翻译：Can you recommend a good book?\n用户：我比较喜欢科幻类的小说，最好是关于未来科技的。\n翻译：I prefer science fiction novels, preferably about future technology.\n用户：谢谢你的推荐，我会去看看的。\n翻译：Thank you for the recommendation. I'll check it out.\n现在这段文字已经足够长了，你可以运行程序，用手指或者鼠标在文本区域上下滑动，看看是否能流畅滚动，弹性效果和惯性效果是否正常，也可以试试滑到顶部和底部时的边界反馈是否符合预期。");
+    lv_obj_remove_flag(ui_LabelContent, LV_OBJ_FLAG_SCROLL_CHAIN);      /// Flags
+    lv_obj_set_style_text_font(ui_LabelContent, &ui_font_font3Alibaba, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     lv_obj_add_event_cb(ui_ButtonClear, ui_event_ButtonClear, LV_EVENT_ALL, NULL);
     uic_LabelContent = ui_LabelContent;
@@ -74,10 +84,11 @@ void ui_Splash_screen_destroy(void)
 
     // NULL screen variables
     ui_Splash = NULL;
-    uic_LabelContent = NULL;
-    ui_LabelContent = NULL;
     ui_LabelTime = NULL;
     ui_ButtonClear = NULL;
     ui_Label4 = NULL;
+    ui_Panel1 = NULL;
+    uic_LabelContent = NULL;
+    ui_LabelContent = NULL;
 
 }

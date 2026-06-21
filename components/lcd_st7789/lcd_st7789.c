@@ -49,6 +49,7 @@ esp_lcd_panel_handle_t lcd_st7789_init(void)
     ESP_ERROR_CHECK(esp_lcd_panel_reset(panel));
     ESP_ERROR_CHECK(esp_lcd_panel_init(panel));
     ESP_ERROR_CHECK(esp_lcd_panel_invert_color(panel, true));
+    ESP_ERROR_CHECK(esp_lcd_panel_set_gap(panel, 0, 20));  /* center 280px in 320px frame */
     ESP_ERROR_CHECK(esp_lcd_panel_disp_on_off(panel, true));
 
     return panel;

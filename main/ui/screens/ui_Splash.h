@@ -14,11 +14,12 @@ extern "C" {
 extern void ui_Splash_screen_init(void);
 extern void ui_Splash_screen_destroy(void);
 extern lv_obj_t * ui_Splash;
-extern lv_obj_t * ui_LabelContent;
 extern lv_obj_t * ui_LabelTime;
 extern void ui_event_ButtonClear(lv_event_t * e);
 extern lv_obj_t * ui_ButtonClear;
 extern lv_obj_t * ui_Label4;
+extern lv_obj_t * ui_Panel1;
+extern lv_obj_t * ui_LabelContent;
 // CUSTOM VARIABLES
 extern lv_obj_t * uic_LabelContent;
 
