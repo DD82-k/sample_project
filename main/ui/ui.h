@@ -34,6 +34,7 @@ extern lv_obj_t * ui____initial_actions0;
 
 // FONTS
 LV_FONT_DECLARE(ui_font_font3Alibaba);
+LV_FONT_DECLARE(ui_font_emoji);
 
 // UI INIT
 void ui_init(void);

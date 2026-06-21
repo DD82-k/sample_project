@@ -26,56 +26,74 @@ void ui_event_ButtonClear(lv_event_t * e)
 
 void ui_Splash_screen_init(void)
 {
+    /* ====== Main screen — light modern theme ====== */
     ui_Splash = lv_obj_create(NULL);
-    lv_obj_remove_flag(ui_Splash, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
-    lv_obj_set_style_bg_color(ui_Splash, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_remove_flag(ui_Splash, LV_OBJ_FLAG_SCROLLABLE);
+    lv_obj_set_style_bg_color(ui_Splash, lv_color_hex(0xF0F2F5), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_opa(ui_Splash, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
 
+    /* ====== Time label ====== */
     ui_LabelTime = lv_label_create(ui_Splash);
     lv_obj_set_width(ui_LabelTime, lv_pct(100));
-    lv_obj_set_height(ui_LabelTime, LV_SIZE_CONTENT);    /// 10
+    lv_obj_set_height(ui_LabelTime, 36);
     lv_obj_set_align(ui_LabelTime, LV_ALIGN_TOP_MID);
     lv_label_set_text(ui_LabelTime, "00:00");
+    lv_obj_set_style_text_color(ui_LabelTime, lv_color_hex(0x1A1A1A), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_align(ui_LabelTime, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
 
+    /* ====== Scrollable text card ====== */
+    ui_Panel1 = lv_obj_create(ui_Splash);
+    lv_obj_set_width(ui_Panel1, lv_pct(92));
+    lv_obj_set_height(ui_Panel1, lv_pct(72));
+    lv_obj_align(ui_Panel1, LV_ALIGN_TOP_MID, 0, 42);
+    lv_obj_set_style_bg_color(ui_Panel1, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_Panel1, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_radius(ui_Panel1, 10, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_width(ui_Panel1, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_all(ui_Panel1, 14, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_scroll_dir(ui_Panel1, LV_DIR_VER);
+    lv_obj_set_scrollbar_mode(ui_Panel1, LV_SCROLLBAR_MODE_AUTO);
+
+    ui_LabelContent = lv_label_create(ui_Panel1);
+    lv_obj_set_width(ui_LabelContent, lv_pct(100));
+    lv_obj_set_height(ui_LabelContent, LV_SIZE_CONTENT);
+    lv_label_set_text(ui_LabelContent,
+        "\xF0\x9F\x98\x80 \xE4\xBD\xA0\xE5\xA5\xBD\xEF\xBC\x81\n"
+        "\xF0\x9F\x98\x82 \xE8\xBF\x99\xE4\xB8\xAA\xE5\xA4\xAA\xE6\x90\x9E\xE7\xAC\x91\xE4\xBA\x86\n\n"
+        "--- \xE6\xA8\xA1\xE6\x8B\x9F\xE5\xAF\xB9\xE8\xAF\x9D ---\n\n"
+        "User: Hello! \xF0\x9F\x98\x80\n"
+        "AI: Hi there! \xF0\x9F\x99\x8B\n\n"
+        "User: I love this! \xF0\x9F\x98\x8D\n"
+        "AI: Thanks! \xF0\x9F\x99\x8F\n\n"
+        "User: See you! \xF0\x9F\x98\x89\n"
+        "AI: Bye bye! \xF0\x9F\x98\xB4\n"
+        "User: Haha! \xF0\x9F\x98\x86\n"
+        "AI: Cool! \xF0\x9F\x98\x8E\n\n"
+        "\xE8\xAF\x95\xE8\xAF\x95\xE4\xB8\x8A\xE4\xB8\x8B\xE6\xBB\x91\xE5\x8A\xA8\xEF\xBC\x8C"
+        "\xE7\x9C\x8B\xE7\x9C\x8B""emoji\xE8\x83\xBD\xE5\x90\xA6\xE6\xAD\xA3\xE5\xB8\xB8\xE6\x98\xBE\xE7\xA4\xBA\xE3\x80\x82");
+    lv_obj_set_style_text_color(ui_LabelContent, lv_color_hex(0x1A1A1A), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_LabelContent, &ui_font_font3Alibaba, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    /* ====== Clear button ====== */
     ui_ButtonClear = lv_button_create(ui_Splash);
-    lv_obj_set_width(ui_ButtonClear, lv_pct(80));
-    lv_obj_set_height(ui_ButtonClear, lv_pct(10));
-    lv_obj_set_align(ui_ButtonClear, LV_ALIGN_BOTTOM_MID);
-    lv_obj_add_flag(ui_ButtonClear, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
-    lv_obj_remove_flag(ui_ButtonClear, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
-    lv_obj_set_style_bg_color(ui_ButtonClear, lv_color_hex(0x0A0303), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_width(ui_ButtonClear, lv_pct(55));
+    lv_obj_set_height(ui_ButtonClear, 38);
+    lv_obj_align(ui_ButtonClear, LV_ALIGN_BOTTOM_MID, 0, -8);
+    lv_obj_set_style_bg_color(ui_ButtonClear, lv_color_hex(0x5B8DEF), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_opa(ui_ButtonClear, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_radius(ui_ButtonClear, 19, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_Label4 = lv_label_create(ui_ButtonClear);
     lv_obj_set_width(ui_Label4, lv_pct(100));
     lv_obj_set_height(ui_Label4, lv_pct(100));
     lv_obj_set_align(ui_Label4, LV_ALIGN_CENTER);
     lv_label_set_text(ui_Label4, "清空");
-    lv_obj_set_style_text_color(ui_Label4, lv_color_hex(0xF6EFEF), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_opa(ui_Label4, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_color(ui_Label4, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_align(ui_Label4, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_Label4, &ui_font_font3Alibaba, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    ui_Panel1 = lv_obj_create(ui_Splash);
-    lv_obj_set_width(ui_Panel1, lv_pct(100));
-    lv_obj_set_height(ui_Panel1, lv_pct(80));
-    lv_obj_set_align(ui_Panel1, LV_ALIGN_CENTER);
-    lv_obj_set_flex_flow(ui_Panel1, LV_FLEX_FLOW_COLUMN);
-    lv_obj_set_flex_align(ui_Panel1, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_START);
-    lv_obj_set_scroll_dir(ui_Panel1, LV_DIR_VER);
-
-    ui_LabelContent = lv_label_create(ui_Panel1);
-    lv_obj_set_width(ui_LabelContent, lv_pct(100));
-    lv_obj_set_height(ui_LabelContent, LV_SIZE_CONTENT);    /// 0
-    lv_obj_set_align(ui_LabelContent, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_LabelContent,
-                      "今天我们来测试一下LVGL的文本滚动功能，这段文字会不断增加内容，让它超出控件的显示范围，这样就能验证上下滑动是否正常工作了。\n语音翻译功能在实际使用中会产生大量的对话记录，这些记录需要能被用户自由上下翻阅，查看历史对话内容，所以滚动功能是非常关键的一环。\n我们先模拟一段对话：\n用户：你好，请问今天天气怎么样？\n翻译：Hello, what's the weather like today?\n用户：我想去公园散步，需要带伞吗？\n翻译：I want to go for a walk in the park. Do I need to bring an umbrella?\n用户：听说下午会下雨，你有什么建议吗？\n翻译：I heard it will rain this afternoon. What suggestions do you have?\n用户：那我还是待在家里看书吧，顺便泡一杯热茶。\n翻译：Then I'll just stay home and read a book, and make a cup of hot tea by the way.\n用户：你能推荐一本好书吗？\n翻译：Can you recommend a good book?\n用户：我比较喜欢科幻类的小说，最好是关于未来科技的。\n翻译：I prefer science fiction novels, preferably about future technology.\n用户：谢谢你的推荐，我会去看看的。\n翻译：Thank you for the recommendation. I'll check it out.\n现在这段文字已经足够长了，你可以运行程序，用手指或者鼠标在文本区域上下滑动，看看是否能流畅滚动，弹性效果和惯性效果是否正常，也可以试试滑到顶部和底部时的边界反馈是否符合预期。");
-    lv_obj_remove_flag(ui_LabelContent, LV_OBJ_FLAG_SCROLL_CHAIN);      /// Flags
-    lv_obj_set_style_text_font(ui_LabelContent, &ui_font_font3Alibaba, LV_PART_MAIN | LV_STATE_DEFAULT);
-
-    lv_obj_add_event_cb(ui_ButtonClear, ui_event_ButtonClear, LV_EVENT_ALL, NULL);
+    lv_obj_add_event_cb(ui_ButtonClear, ui_event_ButtonClear, LV_EVENT_CLICKED, NULL);
     uic_LabelContent = ui_LabelContent;
-
 }
 
 void ui_Splash_screen_destroy(void)

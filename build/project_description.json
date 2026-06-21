@@ -1,7 +1,7 @@
 {
     "version":            "1",
     "project_name":       "main",
-    "project_version":    "2649e783-dirty",
+    "project_version":    "aa7d412e-dirty",
     "project_path":       "D:/esp32Project/sample_project",
     "idf_path":           "D:/Program_download/Espressif/frameworks/esp-idf-v5.1.2",
     "build_dir":          "D:/esp32Project/sample_project/build",
@@ -880,7 +880,7 @@
             "managed_reqs": [],
             "managed_priv_reqs": [ "jbrilha__esp_lcd_st7789", "lvgl__lvgl" ],
             "file": "D:/esp32Project/sample_project/build/esp-idf/main/libmain.a",
-            "sources": [ "D:/esp32Project/sample_project/main/main.c", "D:/esp32Project/sample_project/main/ui/components/ui_comp_hook.c", "D:/esp32Project/sample_project/main/ui/fonts/ui_font_font3Alibaba.c", "D:/esp32Project/sample_project/main/ui/screens/ui_Splash.c", "D:/esp32Project/sample_project/main/ui/ui.c", "D:/esp32Project/sample_project/main/ui/ui_events.c", "D:/esp32Project/sample_project/main/ui/ui_helpers.c" ],
+            "sources": [ "D:/esp32Project/sample_project/main/main.c", "D:/esp32Project/sample_project/main/ui/components/ui_comp_hook.c", "D:/esp32Project/sample_project/main/ui/fonts/ui_font_emoji.c", "D:/esp32Project/sample_project/main/ui/fonts/ui_font_font3Alibaba.c", "D:/esp32Project/sample_project/main/ui/screens/ui_Splash.c", "D:/esp32Project/sample_project/main/ui/ui.c", "D:/esp32Project/sample_project/main/ui/ui_events.c", "D:/esp32Project/sample_project/main/ui/ui_helpers.c" ],
             "include_dirs": [ ".", "ui" ]
         },
         "mbedtls": {
