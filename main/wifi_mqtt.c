@@ -144,6 +144,12 @@ static void wifi_mqtt_task(void *pvParameters)
     ESP_ERROR_CHECK(ret);
     ESP_LOGI(TAG, "NVS initialized");
 
+    /* Initialize TCP/IP network interface and default event loop
+       (required before example_connect() — these are NOT called by it) */
+    ESP_ERROR_CHECK(esp_netif_init());
+    ESP_ERROR_CHECK(esp_event_loop_create_default());
+    ESP_LOGI(TAG, "Netif and event loop initialized");
+
     /* Connect to WiFi (blocks until connected or timeout) */
     ESP_LOGI(TAG, "Connecting to WiFi...");
     ESP_ERROR_CHECK(example_connect());
