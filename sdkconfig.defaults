@@ -5,8 +5,18 @@ CONFIG_SPIRAM_SPEED_80M=y
 CONFIG_SPIRAM_USE_CAPS_ALLOC=y
 CONFIG_SPIRAM_USE_MALLOC=y
 
-# WiFi 配置 (protocol_examples_common)
+# Flash: 8MB required for WiFi/MQTT firmware size
+CONFIG_ESPTOOLPY_FLASHSIZE_8MB=y
+
+# Custom partition table - 8MB for factory app
+CONFIG_PARTITION_TABLE_CUSTOM=y
+CONFIG_PARTITION_TABLE_CUSTOM_FILENAME="partitions.csv"
+
+# WiFi config (protocol_examples_common)
 CONFIG_EXAMPLE_CONNECT_WIFI=y
 CONFIG_EXAMPLE_WIFI_SSID="Honor60se"
 CONFIG_EXAMPLE_WIFI_PASSWORD="8899ppoo"
 CONFIG_EXAMPLE_WIFI_CONN_MAX_RETRY=6
+
+# LVGL: enable large font support (Alibaba font exceeds 20-bit bitmap_index)
+CONFIG_LV_FONT_FMT_TXT_LARGE=y
