@@ -22,6 +22,12 @@ dependencies:
       service_url: https://api.components.espressif.com/
       type: service
     version: 9.5.0
-manifest_hash: a765d7bb897a38ab3ca3b73a703dd488ca826b45e2548ca0a9b55ba38445d2aa
+  protocol_examples_common:
+    component_hash: null
+    source:
+      path: D:\esp32_s3\idf\Espressif\frameworks\esp-idf-v5.1.2\examples\common_components\protocol_examples_common
+      type: local
+    version: '*'
+manifest_hash: 6811a64ae6200312cdab37a0a428eeb81fb2842a8d8f9bbfbdf0633e9ba0b5cf
 target: esp32s3
 version: 1.0.0

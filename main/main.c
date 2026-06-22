@@ -11,6 +11,7 @@
 #include "touch_cst816t.h"
 #include "lvgl_port.h"
 #include "ui/ui.h"
+#include "wifi_mqtt.h"
 
 extern lv_obj_t * uic_LabelContent;
 extern lv_obj_t * ui_LabelTime;
@@ -61,6 +62,9 @@ void app_main(void)
     lv_timer_create(rtc_update_cb, 1000, NULL);
 
     lvgl_port_start();
+
+    /* Start WiFi + OneNet MQTT in background (non-blocking) */
+    wifi_mqtt_start();
 
     while (1) {
         vTaskDelay(pdMS_TO_TICKS(1000));
