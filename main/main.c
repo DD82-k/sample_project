@@ -22,6 +22,9 @@ void Button_Clear(lv_event_t * e)
     lv_label_set_text(uic_LabelContent, "");
 }
 
+/* Forward declaration */
+static void doubao_response_cb(const char *response, esp_err_t status);
+
 /* Task: wait for WiFi, then fire the Doubao demo request */
 static void doubao_demo_task(void *arg)
 {
