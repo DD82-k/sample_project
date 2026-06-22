@@ -15,10 +15,15 @@
 #include "esp_err.h"
 #include "esp_log.h"
 #include "esp_check.h"
+#include "esp_rom_sys.h"
 #include "esp_lcd_panel_io.h"
 #include "esp_lcd_touch.h"
 
 #define POINT_NUM_MAX       (1)
+
+/* I2C pins for bus recovery (mirrors touch_cst816t.c) */
+#define PIN_SCL             GPIO_NUM_4
+#define PIN_SDA             GPIO_NUM_5
 
 #define DATA_START_REG      (0x02)
 #define CHIP_ID_REG         (0xA7)
@@ -218,7 +223,9 @@ static esp_err_t touch_cst816s_i2c_read(esp_lcd_touch_handle_t tp, uint16_t reg,
     ESP_RETURN_ON_FALSE(tp != NULL, ESP_ERR_INVALID_ARG, TAG, "Touch controller handle can't be NULL");
     ESP_RETURN_ON_FALSE(data != NULL, ESP_ERR_INVALID_ARG, TAG, "Pointer to the data array can't be NULL");
 
-    /* Fast retry: chip I2C is flaky. 10 rapid attempts, each ~1ms. */
+    /* Fast retry: chip I2C is flaky, and WiFi RF can corrupt the bus.
+       First attempt uses longer timeout; subsequent ones are quick.
+       Every 10 failures, perform bus recovery (9 SCL pulses). */
     for (int attempt = 0; attempt < 50; attempt++) {
         i2c_cmd_handle_t cmd = i2c_cmd_link_create();
         i2c_master_start(cmd);
@@ -229,9 +236,20 @@ static esp_err_t touch_cst816s_i2c_read(esp_lcd_touch_handle_t tp, uint16_t reg,
         if (len > 1) i2c_master_read(cmd, data, len - 1, I2C_MASTER_ACK);
         i2c_master_read_byte(cmd, data + len - 1, I2C_MASTER_NACK);
         i2c_master_stop(cmd);
-        esp_err_t ret = i2c_master_cmd_begin(0, cmd, pdMS_TO_TICKS(5));
+        esp_err_t ret = i2c_master_cmd_begin(0, cmd, pdMS_TO_TICKS(attempt == 0 ? 20 : 5));
         i2c_cmd_link_delete(cmd);
         if (ret == ESP_OK) return ESP_OK;
+        /* I2C bus recovery: clock out 9 pulses to release stuck SDA */
+        if ((attempt % 10) == 9) {
+            gpio_set_direction(PIN_SCL, GPIO_MODE_OUTPUT_OD);
+            gpio_set_direction(PIN_SDA, GPIO_MODE_INPUT_OUTPUT_OD);
+            for (int i = 0; i < 9; i++) {
+                gpio_set_level(PIN_SCL, 0); esp_rom_delay_us(5);
+                gpio_set_level(PIN_SCL, 1); esp_rom_delay_us(5);
+            }
+            gpio_set_level(PIN_SDA, 1); /* Release SDA */
+            i2c_set_pin(0, PIN_SDA, PIN_SCL, GPIO_PULLUP_ENABLE, GPIO_PULLUP_ENABLE, I2C_MODE_MASTER);
+        }
     }
     return ESP_FAIL;
 }

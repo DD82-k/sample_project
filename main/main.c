@@ -12,6 +12,7 @@
 #include "lvgl_port.h"
 #include "ui/ui.h"
 #include "wifi_mqtt.h"
+#include "doubao.h"
 
 extern lv_obj_t * uic_LabelContent;
 extern lv_obj_t * ui_LabelTime;
@@ -19,6 +20,26 @@ extern lv_obj_t * ui_LabelTime;
 void Button_Clear(lv_event_t * e)
 {
     lv_label_set_text(uic_LabelContent, "");
+}
+
+/* Task: wait for WiFi, then fire the Doubao demo request */
+static void doubao_demo_task(void *arg)
+{
+    vTaskDelay(pdMS_TO_TICKS(15000));
+    doubao_request("你好，请用中文简单介绍一下你自己", doubao_response_cb);
+    vTaskDelete(NULL);
+}
+
+/* Doubao response callback — updates the scrollable text label */
+static void doubao_response_cb(const char *response, esp_err_t status)
+{
+    lvgl_port_lock();
+    if (status == ESP_OK && response) {
+        lv_label_set_text(uic_LabelContent, response);
+    } else {
+        lv_label_set_text(uic_LabelContent, "Doubao request failed");
+    }
+    lvgl_port_unlock();
 }
 
 /* LVGL timer callback — update time display every second */
@@ -65,6 +86,9 @@ void app_main(void)
 
     /* Start WiFi + OneNet MQTT in background (non-blocking) */
     wifi_mqtt_start();
+
+    /* Doubao demo: wait for WiFi (+ short settle), then send a prompt */
+    xTaskCreate(doubao_demo_task, "doubao_demo", 4096, NULL, 3, NULL);
 
     while (1) {
         vTaskDelay(pdMS_TO_TICKS(1000));
