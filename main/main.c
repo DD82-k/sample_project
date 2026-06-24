@@ -19,6 +19,7 @@
 #include "vad.h"
 #include "alarm_detect.h"
 #include "speech_prep.h"
+#include "audio_upload.h"
 
 extern lv_obj_t * uic_LabelContent;
 extern lv_obj_t * ui_LabelTime;
@@ -171,11 +172,30 @@ static void on_alarm(alarm_type_t type, bool active)
     alarm_ui_active = active;
 }
 
-/* ============= 麦克风采集 + VAD + 报警 ============= */
+/* ASR 回调 — 显示转写结果 */
+static void asr_result_cb(const char *text, esp_err_t status)
+{
+    lvgl_port_lock();
+    if (status == ESP_OK && text) {
+        lv_label_set_text(uic_LabelContent, text);
+        strncpy(saved_text, text, sizeof(saved_text) - 1);
+    } else {
+        lv_label_set_text(uic_LabelContent, "语音识别失败");
+    }
+    lvgl_port_unlock();
+}
+
+/* ============= 麦克风采集 + VAD + 报警 + ASR ============= */
 static void audio_task(void *arg)
 {
+    /* 帧缓冲 (单帧 320 样本 = 20ms @16kHz) */
     int16_t *buf = heap_caps_malloc(320 * sizeof(int16_t), MALLOC_CAP_SPIRAM);
     if (!buf) { printf("audio: malloc failed\n"); vTaskDelete(NULL); return; }
+
+    /* 总缓冲 — 最大 10 秒语音 (16000*10 = 160000 样本) */
+    int16_t *voice_buf = heap_caps_malloc(160000 * sizeof(int16_t), MALLOC_CAP_SPIRAM);
+    if (!voice_buf) { free(buf); printf("audio: voice_buf malloc failed\n"); vTaskDelete(NULL); return; }
+    int voice_len = 0;
 
     vad_init(2000, 800);
     alarm_detect_init(0, 0);
@@ -195,30 +215,42 @@ static void audio_task(void *arg)
             break;
 
         case VAD_STATE_SPEAKING: {
-            printf("VAD: speaking\n");
-            int64_t sum_before = 0;
-            for (int i = 0; i < n; i++) sum_before += (int32_t)buf[i] * buf[i];
-            float rms_before = sqrtf((float)sum_before / n);
+            /* 累积语音数据 */
+            if (voice_len + n <= 160000) {
+                memcpy(voice_buf + voice_len, buf, n * sizeof(int16_t));
+                voice_len += n;
+            }
+            printf("VAD: speaking (%d samples)\n", voice_len);
 
-            speech_prep_process(buf, n);
-
-            int64_t sum_after = 0;
-            for (int i = 0; i < n; i++) sum_after += (int32_t)buf[i] * buf[i];
-            float rms_after = sqrtf((float)sum_after / n);
-            printf("  prep: RMS %.0f->%.0f noise=%.0f\n",
-                   rms_before, rms_after, speech_prep_noise_rms());
+            /* 在屏幕上显示 "聆听中..." (仅在第一次显示) */
+            if (voice_len == n) {
+                lvgl_port_lock();
+                lv_label_set_text(uic_LabelContent, "聆听中...");
+                lvgl_port_unlock();
+            }
             break;
         }
 
-        case VAD_STATE_DONE:
-            printf("VAD: done\n");
-            speech_prep_reset();
-            printf("  -> ready for ASR upload\n");
+        case VAD_STATE_DONE: {
+            printf("VAD: done, total %d samples (%.1f sec)\n",
+                   voice_len, (float)voice_len / 16000.0f);
+
             if (alarm_detect_type() != ALARM_NONE) {
                 printf("  -> alarm also active, overlay shown\n");
             }
+
+            if (voice_len >= 160) {  /* 至少 10ms 语音才有意义 */
+                lvgl_port_lock();
+                lv_label_set_text(uic_LabelContent, "识别中...");
+                lvgl_port_unlock();
+
+                audio_upload_start(voice_buf, voice_len, asr_result_cb);
+            }
+            voice_len = 0;
+            speech_prep_reset();
             vad_reset();
             break;
+        }
 
         default: break;
         }

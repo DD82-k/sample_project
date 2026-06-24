@@ -15,6 +15,7 @@
 #include "freertos/task.h"
 #include "esp_log.h"
 #include "esp_http_client.h"
+#include "esp_crt_bundle.h"
 #include "cJSON.h"
 
 static const char *TAG = "doubao";
@@ -179,6 +180,7 @@ static void doubao_task(void *arg)
         .timeout_ms                  = 60000,
         .buffer_size                 = RESPONSE_BUF_SIZE,
         .skip_cert_common_name_check = false,
+        .crt_bundle_attach           = esp_crt_bundle_attach,
     };
 
     esp_http_client_handle_t client = esp_http_client_init(&cfg);
