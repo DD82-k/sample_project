@@ -20,6 +20,7 @@
 #include "alarm_detect.h"
 #include "speech_prep.h"
 #include "audio_upload.h"
+#include "esp_netif.h"
 
 extern lv_obj_t * uic_LabelContent;
 extern lv_obj_t * ui_LabelTime;
@@ -197,10 +198,10 @@ static void audio_task(void *arg)
     if (!voice_buf) { free(buf); printf("audio: voice_buf malloc failed\n"); vTaskDelete(NULL); return; }
     int voice_len = 0;
 
-    vad_init(2000, 800);
+    vad_init(5000, 2000);
     alarm_detect_init(0, 0);
     alarm_detect_set_callback(on_alarm);
-    speech_prep_init(2000.0f, 12.0f);
+    speech_prep_init(5000.0f, 12.0f);
 
     while (1) {
         int n = audio_mic_read(buf, 320);
@@ -220,7 +221,7 @@ static void audio_task(void *arg)
                 memcpy(voice_buf + voice_len, buf, n * sizeof(int16_t));
                 voice_len += n;
             }
-            printf("VAD: speaking (%d samples)\n", voice_len);
+            if ((voice_len % 3200) == n) printf("VAD: speaking (%d samples)\n", voice_len);
 
             /* 在屏幕上显示 "聆听中..." (仅在第一次显示) */
             if (voice_len == n) {
@@ -239,12 +240,25 @@ static void audio_task(void *arg)
                 printf("  -> alarm also active, overlay shown\n");
             }
 
-            if (voice_len >= 160) {  /* 至少 10ms 语音才有意义 */
-                lvgl_port_lock();
-                lv_label_set_text(uic_LabelContent, "识别中...");
-                lvgl_port_unlock();
+            if (voice_len >= 1600) {  /* 至少 0.1s 语音才有意义 */
+                /* 检查 WiFi 是否已连上 (任意 netif 有 IP 即可) */
+                bool wifi_ok = false;
+                esp_netif_t *n = NULL;
+                while ((n = esp_netif_next(n)) != NULL) {
+                    esp_netif_ip_info_t ip;
+                    if (esp_netif_get_ip_info(n, &ip) == ESP_OK && ip.ip.addr != 0) {
+                        wifi_ok = true; break;
+                    }
+                }
+                if (!wifi_ok) {
+                    printf("  -> WiFi not ready, skipping ASR\n");
+                } else {
+                    lvgl_port_lock();
+                    lv_label_set_text(uic_LabelContent, "识别中...");
+                    lvgl_port_unlock();
 
-                audio_upload_start(voice_buf, voice_len, asr_result_cb);
+                    audio_upload_start(voice_buf, voice_len, asr_result_cb);
+                }
             }
             voice_len = 0;
             speech_prep_reset();
