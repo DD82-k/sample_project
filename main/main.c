@@ -198,14 +198,14 @@ static void audio_task(void *arg)
     if (!voice_buf) { free(buf); printf("audio: voice_buf malloc failed\n"); vTaskDelete(NULL); return; }
     int voice_len = 0;
 
-    vad_init(5000, 2000);
+    vad_init(3000, 1200);
     alarm_detect_init(0, 0);
     alarm_detect_set_callback(on_alarm);
-    speech_prep_init(5000.0f, 12.0f);
+    speech_prep_init(3000.0f, 12.0f);
 
     while (1) {
         int n = audio_mic_read(buf, 320);
-        if (n < 1) continue;
+        if (n < 1) { vTaskDelay(pdMS_TO_TICKS(10)); continue; }
 
         alarm_detect_feed(buf, n);
         vad_feed(buf, n);
@@ -257,7 +257,13 @@ static void audio_task(void *arg)
                     lv_label_set_text(uic_LabelContent, "识别中...");
                     lvgl_port_unlock();
 
-                    audio_upload_start(voice_buf, voice_len, asr_result_cb);
+                    esp_err_t asr_err = audio_upload_start(voice_buf, voice_len, asr_result_cb);
+                    if (asr_err != ESP_OK) {
+                        printf("  -> audio_upload_start failed: %s\n", esp_err_to_name(asr_err));
+                        lvgl_port_lock();
+                        lv_label_set_text(uic_LabelContent, "语音识别启动失败");
+                        lvgl_port_unlock();
+                    }
                 }
             }
             voice_len = 0;
