@@ -20,8 +20,32 @@
 #include "esp_netif.h"
 #include "protocol_examples_common.h"
 #include "mqtt_client.h"
+#include "esp_sntp.h"
+#include "esp_wifi.h"
+#include "lwip/dns.h"
 
 static const char *TAG = "wifi_mqtt";
+
+static void configure_network_for_realtime(void)
+{
+    ip_addr_t dns0;
+    ip_addr_t dns1;
+
+    ESP_ERROR_CHECK_WITHOUT_ABORT(esp_wifi_set_ps(WIFI_PS_NONE));
+    IP_ADDR4(&dns0, 223, 5, 5, 5);
+    IP_ADDR4(&dns1, 114, 114, 114, 114);
+    dns_setserver(0, &dns0);
+    dns_setserver(1, &dns1);
+    ESP_LOGI(TAG, "WiFi PS off, DNS set: 223.5.5.5, 114.114.114.114");
+}
+
+static void ip_event_handler(void *arg, esp_event_base_t base,
+                             int32_t event_id, void *event_data)
+{
+    if (base == IP_EVENT && event_id == IP_EVENT_STA_GOT_IP) {
+        configure_network_for_realtime();
+    }
+}
 
 /* ================================================================== */
 /*  OneNet configuration                                               */
@@ -148,12 +172,48 @@ static void wifi_mqtt_task(void *pvParameters)
        (required before example_connect() — these are NOT called by it) */
     ESP_ERROR_CHECK(esp_netif_init());
     ESP_ERROR_CHECK(esp_event_loop_create_default());
+    ESP_ERROR_CHECK(esp_event_handler_register(IP_EVENT, IP_EVENT_STA_GOT_IP,
+                                               ip_event_handler, NULL));
     ESP_LOGI(TAG, "Netif and event loop initialized");
 
     /* Connect to WiFi (blocks until connected or timeout) */
     ESP_LOGI(TAG, "Connecting to WiFi...");
     ESP_ERROR_CHECK(example_connect());
     ESP_LOGI(TAG, "WiFi connected successfully");
+    configure_network_for_realtime();
+
+    /* Start SNTP time sync — must be AFTER WiFi is connected */
+    sntp_set_sync_mode(SNTP_SYNC_MODE_IMMED);
+    sntp_set_sync_interval(30000);
+    sntp_setoperatingmode(SNTP_OPMODE_POLL);
+    sntp_setservername(0, "pool.ntp.org");
+    sntp_init();
+    ESP_LOGI(TAG, "SNTP started (immediate mode)");
+
+    /* Wait for NTP sync (up to 15s) */
+    for (int w = 0; w < 150; w++) {
+        if (sntp_get_sync_status() == SNTP_SYNC_STATUS_COMPLETED) break;
+        vTaskDelay(pdMS_TO_TICKS(100));
+    }
+    {
+        time_t now; time(&now);
+        struct tm ti; gmtime_r(&now, &ti);
+        char buf[32]; strftime(buf, sizeof(buf), "%Y-%m-%dT%H:%M:%S", &ti);
+        ESP_LOGI(TAG, "NTP status: %d, time: %s UTC", sntp_get_sync_status(), buf);
+    }
+
+    /* Wait for NTP sync (up to 15s) so ASR has correct time */
+    {
+        int waited = 0;
+        while (waited < 150 && sntp_get_sync_status() != SNTP_SYNC_STATUS_COMPLETED) {
+            vTaskDelay(pdMS_TO_TICKS(100));
+            waited++;
+        }
+        time_t now; time(&now);
+        struct tm ti; gmtime_r(&now, &ti);
+        char buf[32]; strftime(buf, sizeof(buf), "%Y-%m-%d %H:%M:%S", &ti);
+        ESP_LOGI(TAG, "NTP sync: %s (%d00ms)", buf, waited);
+    }
 
     /* Start MQTT to OneNet */
     mqtt_app_start();

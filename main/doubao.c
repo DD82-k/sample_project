@@ -23,9 +23,9 @@ static const char *TAG = "doubao";
 /* ================================================================== */
 /*  Doubao / Volcengine configuration                                   */
 /* ================================================================== */
-#define DOUBAO_BASE_URL     "https://ai-gateway.vei.volces.com/v1"
-#define DOUBAO_API_KEY      "sk-e03e012d80c349938be158b7acb8f75csoeh2gwnh4bpp1bd"
-#define DOUBAO_MODEL        "doubao-seed-1.6-thinking"
+#define DOUBAO_BASE_URL     "https://ark.cn-beijing.volces.com/api/v3"
+#define DOUBAO_API_KEY      "ark-35d1eb40-d13d-4476-b030-80874dc3ef5b-226e2"
+#define DOUBAO_MODEL        "ep-20260625194020-4zjhz"
 #define DOUBAO_MAX_TOKENS   500
 
 /* Response buffer (heap).  Adjust if your prompts yield longer replies. */
@@ -68,7 +68,7 @@ static esp_err_t http_event_handler(esp_http_client_event_t *evt)
     case HTTP_EVENT_ON_FINISH:
         if (ctx->buf) {
             ctx->buf[ctx->len] = '\0';
-            ESP_LOGD(TAG, "Raw response: %s", ctx->buf);
+            ESP_LOGI(TAG, "Raw response: %s", ctx->buf);
 
             /* Parse JSON */
             cJSON *root = cJSON_Parse(ctx->buf);
@@ -76,15 +76,35 @@ static esp_err_t http_event_handler(esp_http_client_event_t *evt)
                 cJSON *choices = cJSON_GetObjectItem(root, "choices");
                 if (cJSON_IsArray(choices) && cJSON_GetArraySize(choices) > 0) {
                     cJSON *first  = cJSON_GetArrayItem(choices, 0);
+                    /* Try OpenAI format: choices[0].message.content (string) */
                     cJSON *msg    = cJSON_GetObjectItem(first, "message");
                     cJSON *ct     = msg ? cJSON_GetObjectItem(msg, "content") : NULL;
                     if (cJSON_IsString(ct)) {
                         ESP_LOGI(TAG, "Response: %s", ct->valuestring);
-                        if (ctx->callback) {
-                            ctx->callback(ct->valuestring, ESP_OK);
+                        if (ctx->callback) { ctx->callback(ct->valuestring, ESP_OK); }
+                        cJSON_Delete(root); goto cleanup;
+                    }
+                    /* Try Responses API: output[i].content[0].text */
+                    cJSON *output = cJSON_GetObjectItem(root, "output");
+                    if (cJSON_IsArray(output)) {
+                        int n = cJSON_GetArraySize(output);
+                        for (int i = 0; i < n; i++) {
+                            cJSON *o = cJSON_GetArrayItem(output, i);
+                            cJSON *type = cJSON_GetObjectItem(o, "type");
+                            if (!cJSON_IsString(type) || strcmp(type->valuestring, "message") != 0)
+                                continue;
+                            cJSON *ocont = cJSON_GetObjectItem(o, "content");
+                            if (cJSON_IsArray(ocont) && cJSON_GetArraySize(ocont) > 0) {
+                                cJSON *c0 = cJSON_GetArrayItem(ocont, 0);
+                                cJSON *ctext = cJSON_GetObjectItem(c0, "text");
+                                if (cJSON_IsString(ctext)) {
+                                    ESP_LOGI(TAG, "Response: %s", ctext->valuestring);
+                                    if (ctx->callback) { ctx->callback(ctext->valuestring, ESP_OK); }
+                                    cJSON_Delete(root); goto cleanup;
+                                }
+                            }
+                            break;
                         }
-                        cJSON_Delete(root);
-                        goto cleanup;
                     }
                 }
                 cJSON_Delete(root);
@@ -127,20 +147,19 @@ static void doubao_task(void *arg)
     request_t *req = (request_t *)arg;
     if (!req) { vTaskDelete(NULL); return; }
 
-    /* ---- Build JSON body ---- */
+    /* ---- Build JSON body (Responses API format) ---- */
     cJSON *root   = cJSON_CreateObject();
-    cJSON *msgs   = cJSON_AddArrayToObject(root, "messages");
+    cJSON *input  = cJSON_AddArrayToObject(root, "input");
     cJSON *msg    = cJSON_CreateObject();
     cJSON *cntarr = cJSON_AddArrayToObject(msg, "content");
     cJSON *txt    = cJSON_CreateObject();
 
-    cJSON_AddStringToObject(root, "model",      DOUBAO_MODEL);
-    cJSON_AddNumberToObject(root, "max_tokens", DOUBAO_MAX_TOKENS);
+    cJSON_AddStringToObject(root, "model", DOUBAO_MODEL);
     cJSON_AddStringToObject(msg, "role", "user");
-    cJSON_AddStringToObject(txt, "type", "text");
+    cJSON_AddStringToObject(txt, "type", "input_text");
     cJSON_AddStringToObject(txt, "text", req->prompt);
     cJSON_AddItemToArray(cntarr, txt);
-    cJSON_AddItemToArray(msgs, msg);
+    cJSON_AddItemToArray(input, msg);
 
     char *body = cJSON_PrintUnformatted(root);
     cJSON_Delete(root);
@@ -157,7 +176,7 @@ static void doubao_task(void *arg)
 
     /* ---- HTTPS POST ---- */
     char url[128];
-    snprintf(url, sizeof(url), "%s/chat/completions", DOUBAO_BASE_URL);
+    snprintf(url, sizeof(url), "%s/responses", DOUBAO_BASE_URL);
 
     /* Context for the event handler — lives on the task stack */
     struct http_ctx {
