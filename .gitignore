@@ -5,10 +5,16 @@ build/
 *.map
 *.hex
 flash_args
+flash_app_args
+flash_project_args
+flasher_args.json
 compile_commands.json
 CMakeCache.txt
 CMakeFiles/
 *.cmake
+*.ninja
+.ninja_log
+ninja_log
 
 # SDK 配置 — 每台机器不同，用 sdkconfig.defaults 共享默认值
 sdkconfig

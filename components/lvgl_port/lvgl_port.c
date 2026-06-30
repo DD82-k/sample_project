@@ -94,6 +94,9 @@ void lvgl_port_init(esp_lcd_panel_handle_t lcd, esp_lcd_touch_handle_t touch)
     ESP_ERROR_CHECK(esp_timer_start_periodic(t, TICK_PERIOD_MS * 1000));
 }
 
+void lvgl_port_lock(void)   { xSemaphoreTake(lvgl_mux, portMAX_DELAY); }
+void lvgl_port_unlock(void) { xSemaphoreGive(lvgl_mux); }
+
 void lvgl_port_start(void)
 {
     lvgl_mux = xSemaphoreCreateMutex();

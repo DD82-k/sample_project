@@ -36,10 +36,13 @@ esp_lcd_touch_handle_t touch_cst816t_init(void)
         .scl_io_num       = PIN_SCL,
         .sda_pullup_en    = GPIO_PULLUP_ENABLE,
         .scl_pullup_en    = GPIO_PULLUP_ENABLE,
-        .master.clk_speed = 100000,
+        .master.clk_speed = 400000,
     };
     i2c_param_config(I2C_PORT, &i2c);
     i2c_driver_install(I2C_PORT, i2c.mode, 0, 0, 0);
+    /* Boost I2C pin drive strength to max — WiFi RF noise corrupts weak signals */
+    gpio_set_drive_capability(PIN_SCL, GPIO_DRIVE_CAP_3);
+    gpio_set_drive_capability(PIN_SDA, GPIO_DRIVE_CAP_3);
 
     ESP_LOGI(TAG, "Init CST816T touch");
     esp_lcd_panel_io_i2c_config_t iocfg = ESP_LCD_TOUCH_IO_I2C_CST816S_CONFIG();
