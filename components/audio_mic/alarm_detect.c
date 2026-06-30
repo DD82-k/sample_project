@@ -22,19 +22,19 @@
 
 /* ---- 可调阈值 ---- */
 #define ENERGY_GATE_RMS     18      /* RMS < 18 跳过 */
-#define PAR_THRESH          8.0f    /* 峰值/均值比 (57 bin, 语音低频拉低PAR) */
+#define PAR_THRESH          5.0f    /* 峰值/均值比 (24 bin) */
 #define PEAK_RATIO_THRESH   0.40f   /* 次高峰/最高峰 < 0.4 */
-#define TRIGGER_FRAMES      6       /* 连续 6 帧触发 */
+#define TRIGGER_FRAMES      25      /* 连续 25 帧 = 500ms 才触发 */
 #define RELEASE_FRAMES      45      /* 连续 45 帧解除 */
 #define STARTUP_MUTE        50      /* 上电静音帧数 */
 
 /* ---- Goertzel 频点 ---- */
 #define SAMPLE_RATE         16000
 #define FRAME_SAMPLES       320
-#define FREQ_START          500     /* Hz — 包含语音低频, 压低语音 PAR */
+#define FREQ_START          575     /* Hz — 半 bin 偏移避免 DFT 零点 */
 #define FREQ_END            4000    /* Hz */
-#define FREQ_STEP           62.5f   /* Hz (DFT 分辨率偏移半格, 避免零点) */
-#define NUM_BINS            57      /* (4000-500)/62.5 + 1 */
+#define FREQ_STEP           150.0f  /* Hz (降低 CPU 负载) */
+#define NUM_BINS            24      /* (4000-500)/150 + 1, 降一半算力 */
 
 /* ---- 全局状态 ---- */
 static int    trigger_cnt    = 0;

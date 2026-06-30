@@ -167,7 +167,9 @@ static void audio_task(void *arg)
 
     while (1) {
         int n = audio_mic_read(buf, 320);
-        if (n < 1) continue;
+        if (n < 1) { vTaskDelay(1); continue; }
+
+        taskYIELD();  /* 避免长时间占 CPU 触发看门狗 */
 
         /* 报警检测: 用原始数据 */
         alarm_detect_feed(buf, n);
