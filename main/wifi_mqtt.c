@@ -169,9 +169,11 @@ static void wifi_mqtt_task(void *pvParameters)
     ESP_LOGI(TAG, "NVS initialized");
 
     /* Initialize TCP/IP network interface and default event loop
-       (required before example_connect() — these are NOT called by it) */
-    ESP_ERROR_CHECK(esp_netif_init());
-    ESP_ERROR_CHECK(esp_event_loop_create_default());
+       (may already be initialized by comm_ap, ignore errors) */
+    esp_netif_init();
+    if (esp_event_loop_create_default() != ESP_OK) {
+        ESP_LOGW(TAG, "event loop already exists, reusing");
+    }
     ESP_ERROR_CHECK(esp_event_handler_register(IP_EVENT, IP_EVENT_STA_GOT_IP,
                                                ip_event_handler, NULL));
     ESP_LOGI(TAG, "Netif and event loop initialized");

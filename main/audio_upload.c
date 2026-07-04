@@ -52,7 +52,7 @@ static const char *TAG = "asr_ws";
 #define AUDIO_BITS            16
 #define AUDIO_CHANNELS        1
 #define AUDIO_FRAME_SAMPLES   320
-#define AUDIO_QUEUE_DEPTH     240
+#define AUDIO_QUEUE_DEPTH     40
 #define AUDIO_CONNECT_BACKLOG_KEEP 120
 #define ASR_TASK_STACK        (24 * 1024)
 #define WS_RX_MAX             8192

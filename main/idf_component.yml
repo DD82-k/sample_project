@@ -1,6 +1,6 @@
 ## IDF Component Manager Manifest File
 dependencies:
-  lvgl/lvgl: "^9.5.0"
+  lvgl/lvgl: "^9.2.0"
   jbrilha/esp_lcd_st7789: "^1.0.2"
   ## WiFi/MQTT — protocol_examples_common provides example_connect()
   protocol_examples_common:

@@ -24,7 +24,7 @@
 #define ENERGY_GATE_RMS     18      /* RMS < 18 跳过 */
 #define PAR_THRESH          5.0f    /* 峰值/均值比 (24 bin) */
 #define PEAK_RATIO_THRESH   0.40f   /* 次高峰/最高峰 < 0.4 */
-#define TRIGGER_FRAMES      25      /* 连续 25 帧 = 500ms 才触发 */
+#define TRIGGER_FRAMES      5       /* 每5帧喂一次, 5次=500ms */
 #define RELEASE_FRAMES      45      /* 连续 45 帧解除 */
 #define STARTUP_MUTE        50      /* 上电静音帧数 */
 

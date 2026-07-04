@@ -23,59 +23,85 @@ void ui_event_ButtonClear(lv_event_t * e)
 }
 
 // build funtions
+// Color palette: warm light theme with subtle blue-gray accents
 
 void ui_Splash_screen_init(void)
 {
+    /* ---- Screen ---- */
     ui_Splash = lv_obj_create(NULL);
-    lv_obj_remove_flag(ui_Splash, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
-    lv_obj_set_style_bg_color(ui_Splash, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_remove_flag(ui_Splash, LV_OBJ_FLAG_SCROLLABLE);
+    lv_obj_set_style_bg_color(ui_Splash, lv_color_hex(0xF2F3F5), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_opa(ui_Splash, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    ui_LabelTime = lv_label_create(ui_Splash);
+    /* ---- Top time bar ---- */
+    lv_obj_t *top_bar = lv_obj_create(ui_Splash);
+    lv_obj_set_size(top_bar, lv_pct(100), 36);
+    lv_obj_set_style_bg_color(top_bar, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(top_bar, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_radius(top_bar, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_width(top_bar, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_side(top_bar, LV_BORDER_SIDE_BOTTOM, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_color(top_bar, lv_color_hex(0xE0E2E6), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_width(top_bar, 1, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_align(top_bar, LV_ALIGN_TOP_MID);
+
+    ui_LabelTime = lv_label_create(top_bar);
     lv_obj_set_width(ui_LabelTime, lv_pct(100));
-    lv_obj_set_height(ui_LabelTime, LV_SIZE_CONTENT);    /// 10
-    lv_obj_set_align(ui_LabelTime, LV_ALIGN_TOP_MID);
+    lv_obj_set_style_text_color(ui_LabelTime, lv_color_hex(0x1A1A1A), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_LabelTime, &ui_font_font3Alibaba, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_align(ui_LabelTime, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_center(ui_LabelTime);
     lv_label_set_text(ui_LabelTime, "00:00");
 
-    ui_ButtonClear = lv_button_create(ui_Splash);
-    lv_obj_set_width(ui_ButtonClear, lv_pct(80));
-    lv_obj_set_height(ui_ButtonClear, lv_pct(10));
-    lv_obj_set_align(ui_ButtonClear, LV_ALIGN_BOTTOM_MID);
-    lv_obj_add_flag(ui_ButtonClear, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
-    lv_obj_remove_flag(ui_ButtonClear, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
-    lv_obj_set_style_bg_color(ui_ButtonClear, lv_color_hex(0x0A0303), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_opa(ui_ButtonClear, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-
-    ui_Label4 = lv_label_create(ui_ButtonClear);
-    lv_obj_set_width(ui_Label4, lv_pct(100));
-    lv_obj_set_height(ui_Label4, lv_pct(100));
-    lv_obj_set_align(ui_Label4, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_Label4, "清空");
-    lv_obj_set_style_text_color(ui_Label4, lv_color_hex(0xF6EFEF), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_opa(ui_Label4, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_align(ui_Label4, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_font(ui_Label4, &lv_font_montserrat_8, LV_PART_MAIN | LV_STATE_DEFAULT);
-
+    /* ---- Conversation panel ---- */
     ui_Panel1 = lv_obj_create(ui_Splash);
-    lv_obj_set_width(ui_Panel1, lv_pct(100));
-    lv_obj_set_height(ui_Panel1, lv_pct(80));
-    lv_obj_set_align(ui_Panel1, LV_ALIGN_CENTER);
+    lv_obj_set_width(ui_Panel1, lv_pct(95));
+    lv_obj_set_style_bg_color(ui_Panel1, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_Panel1, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_radius(ui_Panel1, 16, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_width(ui_Panel1, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_all(ui_Panel1, 12, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_flex_flow(ui_Panel1, LV_FLEX_FLOW_COLUMN);
     lv_obj_set_flex_align(ui_Panel1, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_START);
     lv_obj_set_scroll_dir(ui_Panel1, LV_DIR_VER);
+    lv_obj_set_style_border_width(ui_Panel1, 1, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_color(ui_Panel1, lv_color_hex(0xE8E8EC), LV_PART_MAIN | LV_STATE_DEFAULT);
+    /* Position between top bar and button */
+    lv_obj_set_align(ui_Panel1, LV_ALIGN_TOP_MID);
+    lv_obj_set_y(ui_Panel1, 44);
+    lv_obj_set_height(ui_Panel1, lv_pct(68));
 
+    /* ---- Content label ---- */
     ui_LabelContent = lv_label_create(ui_Panel1);
     lv_obj_set_width(ui_LabelContent, lv_pct(100));
-    lv_obj_set_height(ui_LabelContent, LV_SIZE_CONTENT);    /// 0
-    lv_obj_set_align(ui_LabelContent, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_LabelContent,
-                      "今天我们来测试一下 LVGL 的文本滚动功能。这段文字会不断增加内容，让它超出控件的显示范围，这样就能验证上下滑动是否正常工作了。\n语音翻译功能在实际使用中会产生大量的对话记录，这些记录需要能被用户自由上下翻阅，查看历史对话内容，所以滚动功能是非常关键的一环。\n我们先模拟一段对话：\n用户。你好、请问今天天气怎么样？\n翻译。Hello、what's the weather like today？\n用户。我想去公园散步、需要带伞吗？\n翻译。I want to go for a walk in the park、Do I need to bring an umbrella？\n用户。听说下午会下雨、你有什么建议吗？\n翻译。I heard it will rain this afternoon、What suggestions do you have？\n用户。那我还是待在家里看书吧、顺便泡一杯热茶。\n翻译。Then I'll just stay home and read a book、and make a cup of hot tea by the way。\n用户。你能推荐一本好书吗？\n翻译。Can you recommend a good book？\n用户。我比较喜欢科幻类的小说、最好是关于未来科技的。\n翻译。I prefer science fiction novels、preferably about future technology。\n用户。谢谢你的推荐、我会去看看的。\n翻译。Thank you for the recommendation、I'll check it out。\n现在这段文字已经足够长了、你可以运行程序、用手指或者鼠标在文本区域上下滑动、看看是否能流畅滚动、弹性效果和惯性效果是否正常、也可以试试滑到顶部和底部时的边界反馈是否符合预期。");
-    lv_obj_remove_flag(ui_LabelContent, LV_OBJ_FLAG_SCROLL_CHAIN);      /// Flags
-    lv_obj_set_style_text_font(ui_LabelContent, &lv_font_montserrat_8, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_height(ui_LabelContent, LV_SIZE_CONTENT);
+    lv_obj_set_style_text_color(ui_LabelContent, lv_color_hex(0x1A1A1A), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_LabelContent, &ui_font_font3Alibaba, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_all(ui_LabelContent, 4, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_remove_flag(ui_LabelContent, LV_OBJ_FLAG_SCROLL_CHAIN);
+    lv_label_set_text(ui_LabelContent, "");
 
-    lv_obj_add_event_cb(ui_ButtonClear, ui_event_ButtonClear, LV_EVENT_ALL, NULL);
+    /* ---- Clear button ---- */
+    ui_ButtonClear = lv_button_create(ui_Splash);
+    lv_obj_set_width(ui_ButtonClear, lv_pct(70));
+    lv_obj_set_height(ui_ButtonClear, 36);
+    lv_obj_set_align(ui_ButtonClear, LV_ALIGN_BOTTOM_MID);
+    lv_obj_set_y(ui_ButtonClear, -12);
+    lv_obj_set_style_bg_color(ui_ButtonClear, lv_color_hex(0x0A0303), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_ButtonClear, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_radius(ui_ButtonClear, 18, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_width(ui_ButtonClear, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_add_flag(ui_ButtonClear, LV_OBJ_FLAG_SCROLL_ON_FOCUS);
+
+    ui_Label4 = lv_label_create(ui_ButtonClear);
+    lv_label_set_text(ui_Label4, "清空记录");
+    lv_obj_set_style_text_color(ui_Label4, lv_color_hex(0xF6EFEF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(ui_Label4, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_Label4, &ui_font_font3Alibaba, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_center(ui_Label4);
+
+    lv_obj_add_event_cb(ui_ButtonClear, ui_event_ButtonClear, LV_EVENT_CLICKED, NULL);
     uic_LabelContent = ui_LabelContent;
-
 }
 
 void ui_Splash_screen_destroy(void)

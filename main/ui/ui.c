@@ -222,17 +222,33 @@ lv_anim_t * scrolldot_Animation(lv_obj_t * TargetObject, int delay)
 
 ///////////////////// SCREENS ////////////////////
 
+static void splash_gesture_cb(lv_event_t *e)
+{
+    lv_dir_t dir = lv_indev_get_gesture_dir(lv_indev_active());
+    if (dir == LV_DIR_LEFT) {
+        if (!ui_Screen2) ui_Screen2_screen_init();
+        lv_scr_load_anim(ui_Screen2, LV_SCR_LOAD_ANIM_MOVE_LEFT, 300, 0, false);
+    }
+}
+
 void ui_init(void)
 {
-    lv_disp_t * dispp = lv_display_get_default();
-    lv_theme_t * theme = lv_theme_simple_init(dispp);
+    lv_disp_t *dispp = lv_display_get_default();
+    lv_theme_t *theme = lv_theme_simple_init(dispp);
     lv_disp_set_theme(dispp, theme);
+
     ui_Splash_screen_init();
     ui____initial_actions0 = lv_obj_create(NULL);
     lv_disp_load_scr(ui_Splash);
+
+    /* Swipe left on conversation page → quick phrases */
+    lv_obj_add_event_cb(ui_Splash, splash_gesture_cb, LV_EVENT_GESTURE, NULL);
+
+    /* Init screen2 on demand via gesture */
 }
 
 void ui_destroy(void)
 {
     ui_Splash_screen_destroy();
+    ui_Screen2_screen_destroy();
 }
