@@ -25,9 +25,9 @@ dependencies:
   protocol_examples_common:
     component_hash: null
     source:
-      path: D:\Program_download\Espressif\frameworks\esp-idf-v5.1.2\examples\common_components\protocol_examples_common
+      path: D:\esp32_s3\idf\Espressif\frameworks\esp-idf-v5.1.2\examples\common_components\protocol_examples_common
       type: local
     version: '*'
-manifest_hash: 7b68dcc09d3b191309acd2eb2aadacf57e594f9137778d2f0d27f1d79a6cc6ab
+manifest_hash: 5199a81fbdb8ea60f8eb37496b6724083062d49855a6fd92fdff942b709257cd
 target: esp32s3
 version: 1.0.0

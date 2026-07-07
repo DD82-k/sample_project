@@ -20,7 +20,6 @@
 #include "alarm_detect.h"
 #include "speech_prep.h"
 #include "audio_upload.h"
-#include "comm_ap.h"
 #include "alarm_ui.h"
 #include "asr_display.h"
 
@@ -57,6 +56,7 @@ static void audio_task(void *arg)
     int voice_len = 0, asr_pending_count = 0, next_asr_start_retry = 0, last_audio_diag = -16000;
     bool asr_streaming = false, asr_start_pending = false, asr_preconnected = false;
     bool asr_wait_logged = false, asr_feed_full_logged = false;
+    TickType_t asr_cooldown_until = 0;
 
     vad_init(220, 90);
     alarm_detect_init(0, 0);
@@ -76,14 +76,6 @@ static void audio_task(void *arg)
         switch (vad_state()) {
         case VAD_STATE_IDLE:
             speech_prep_feed_idle(buf, n);
-            if (!asr_preconnected && !audio_stream_active() && network_has_ip()) {
-                if (audio_stream_start(asr_result_cb) == ESP_OK) {
-                    asr_preconnected = true;
-                    printf("  -> ASR preconnect started\n");
-                }
-            } else if (asr_preconnected && !audio_stream_accepting()) {
-                asr_preconnected = false;
-            }
             break;
 
         case VAD_STATE_SPEAKING: {
@@ -97,8 +89,11 @@ static void audio_task(void *arg)
                 asr_start_pending = asr_streaming = asr_preconnected = false;
                 asr_wait_logged = asr_feed_full_logged = false;
                 next_asr_start_retry = 0;
+                TickType_t now_tick = xTaskGetTickCount();
                 if (!network_has_ip()) {
                     printf("  -> WiFi not ready, skipping ASR\n");
+                } else if (now_tick < asr_cooldown_until) {
+                    printf("  -> ASR cooling down, skipping this utterance\n");
                 } else if (audio_stream_accepting()) {
                     asr_streaming = true;
                 } else {
@@ -123,7 +118,11 @@ static void audio_task(void *arg)
                         if (audio_stream_start(asr_result_cb) == ESP_OK) {
                             asr_streaming = true; asr_start_pending = false;
                             asr_pending_feed(asr_pending, asr_pending_counts, &asr_pending_count);
-                        } else { asr_start_pending = false; asr_pending_clear(&asr_pending_count); }
+                        } else {
+                            asr_cooldown_until = xTaskGetTickCount() + pdMS_TO_TICKS(3000);
+                            asr_start_pending = false;
+                            asr_pending_clear(&asr_pending_count);
+                        }
                     }
                 }
             } else if (asr_streaming) {
@@ -150,9 +149,13 @@ static void audio_task(void *arg)
 
             if (!asr_streaming && asr_start_pending && asr_pending_count > 0) {
                 for (int w = 0; w < 3500 && audio_stream_active(); w += 50) vTaskDelay(pdMS_TO_TICKS(50));
-                if (!audio_stream_active() && audio_stream_start(asr_result_cb) == ESP_OK) {
-                    asr_streaming = true;
-                    asr_pending_feed(asr_pending, asr_pending_counts, &asr_pending_count);
+                if (!audio_stream_active()) {
+                    if (audio_stream_start(asr_result_cb) == ESP_OK) {
+                        asr_streaming = true;
+                        asr_pending_feed(asr_pending, asr_pending_counts, &asr_pending_count);
+                    } else {
+                        asr_cooldown_until = xTaskGetTickCount() + pdMS_TO_TICKS(3000);
+                    }
                 }
             }
             if (asr_streaming) { audio_stream_finish(); }
@@ -198,7 +201,7 @@ void app_main(void)
     lvgl_port_start();
 
     /* WiFi AP + TCP Server */
-    comm_ap_start("ESP32-Watch", "12345678", 8888, NULL, NULL);
+    wifi_mqtt_start();
     // wifi_mqtt_start();  /* 稍后启用 */
 
     if (audio_mic_init() == ESP_OK) {

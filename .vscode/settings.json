@@ -1,9 +1,11 @@
 {
   "idf.flashType": "UART",
-  "idf.portWin": "COM7",
-  "idf.espIdfPathWin": "D:/Program_download/Espressif/frameworks/esp-idf-v5.1.2/",
-  "idf.toolsPathWin": "D:/Program_download/Espressif",
+  "idf.portWin": "COM5",
+  "idf.espIdfPathWin": "D:/esp32_s3/idf/Espressif/frameworks/esp-idf-v5.1.2/",
+  "idf.toolsPathWin": "D:/esp32_s3/idf/Espressif",
+  "idf.buildPath": "${workspaceFolder}/build",
   "idf.customExtraVars": {
     "IDF_TARGET": "esp32s3"
-  }
+  },
+  "idf.currentSetup": "D:/esp32_s3/idf/Espressif/frameworks/esp-idf-v5.1.2/"
 }

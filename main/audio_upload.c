@@ -361,7 +361,7 @@ static esp_err_t ws_connect(esp_tls_t **out_tls)
 
     esp_tls_cfg_t cfg = {
         .crt_bundle_attach = esp_crt_bundle_attach,
-        .timeout_ms = 4000,
+        .timeout_ms = 8000,
         .non_block = true,
     };
 

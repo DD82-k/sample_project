@@ -1,30 +1,39 @@
 /*
- * WiFi + OneNet MQTT module
+ * WiFi + MQTT quick phrase sender.
  *
- * Adapted from the tcp project.  Handles:
- *   - NVS init
- *   - WiFi station connection (via protocol_examples_common)
- *   - MQTT connection to OneNet (heclouds.com)
- *   - Device property publish & property-set subscription
+ * The sender connects to the configured phone hotspot WiFi and publishes
+ * Chinese quick phrases to the receiver ESP32 through broker.emqx.io.
  */
 #include "wifi_mqtt.h"
 
+#include <stdbool.h>
+#include <inttypes.h>
 #include <stdio.h>
 #include <string.h>
+
+#include "esp_err.h"
+#include "esp_event.h"
+#include "esp_log.h"
+#include "esp_netif.h"
+#include "esp_wifi.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
-#include "esp_log.h"
-#include "esp_err.h"
-#include "nvs_flash.h"
-#include "esp_event.h"
-#include "esp_netif.h"
-#include "protocol_examples_common.h"
-#include "mqtt_client.h"
-#include "esp_sntp.h"
-#include "esp_wifi.h"
 #include "lwip/dns.h"
+#include "mqtt_client.h"
+#include "nvs_flash.h"
+#include "protocol_examples_common.h"
 
 static const char *TAG = "wifi_mqtt";
+
+#define MQTT_BROKER_URI      "mqtt://broker.emqx.io:1883"
+#define MQTT_CLIENT_ID       "esp32_s3_quick_key_sender"
+#define MQTT_PUBLISH_TOPIC   "esp32/sign_speech/text"
+#define MQTT_PUBLISH_QOS     1
+#define MQTT_PUBLISH_RETAIN  0
+
+static esp_mqtt_client_handle_t s_mqtt_client = NULL;
+static volatile bool s_mqtt_connected = false;
+static volatile bool s_started = false;
 
 static void configure_network_for_realtime(void)
 {
@@ -36,7 +45,7 @@ static void configure_network_for_realtime(void)
     IP_ADDR4(&dns1, 114, 114, 114, 114);
     dns_setserver(0, &dns0);
     dns_setserver(1, &dns1);
-    ESP_LOGI(TAG, "WiFi PS off, DNS set: 223.5.5.5, 114.114.114.114");
+    ESP_LOGI(TAG, "WiFi connected, power save off, DNS set");
 }
 
 static void ip_event_handler(void *arg, esp_event_base_t base,
@@ -47,101 +56,50 @@ static void ip_event_handler(void *arg, esp_event_base_t base,
     }
 }
 
-/* ================================================================== */
-/*  OneNet configuration                                               */
-/* ================================================================== */
-#define ONENET_BROKER_URI   "mqtt://mqtts.heclouds.com:1883"
-#define ONENET_USERNAME     "90hui97R9G"
-#define ONENET_CLIENT_ID    "esp32_s3"
-#define ONENET_PASSWORD     "version=2018-10-31&res=products%2F90hui97R9G%2Fdevices%2Fesp32_s3&et=1908337489&method=md5&sign=mV1gUTVH7J%2FzvusHL6v5OA%3D%3D"
-
-/* OneNet MQTT topics */
-#define ONENET_TOPIC_PROPERTY_POST   "$sys/90hui97R9G/esp32_s3/thing/property/post"
-#define ONENET_TOPIC_PROPERTY_SET    "$sys/90hui97R9G/esp32_s3/thing/property/set"
-
-/* Device property data payload (JSON) */
-static const char *DEVICE_PROPERTY_JSON = "{"
-    "\"id\": \"123\","
-    "\"version\": \"1.0\","
-    "\"params\": {"
-        "\"device_status\": {"
-            "\"value\": 23"
-        "}"
-    "}"
-"}";
-
-static esp_mqtt_client_handle_t s_mqtt_client = NULL;
-
-/* ================================================================== */
-/*  MQTT event handler                                                  */
-/* ================================================================== */
 static void mqtt_event_handler(void *handler_args, esp_event_base_t base,
-                                int32_t event_id, void *event_data)
+                               int32_t event_id, void *event_data)
 {
     esp_mqtt_event_handle_t event = (esp_mqtt_event_handle_t)event_data;
 
     switch ((esp_mqtt_event_id_t)event_id) {
-        case MQTT_EVENT_CONNECTED:
-            ESP_LOGI(TAG, "MQTT connected to OneNet broker");
+    case MQTT_EVENT_CONNECTED:
+        s_mqtt_connected = true;
+        ESP_LOGI(TAG, "MQTT connected: %s", MQTT_BROKER_URI);
+        break;
 
-            /* Publish device property */
-            esp_mqtt_client_publish(s_mqtt_client,
-                                    ONENET_TOPIC_PROPERTY_POST,
-                                    DEVICE_PROPERTY_JSON, 0, 1, 0);
-            ESP_LOGI(TAG, "Published: %s", DEVICE_PROPERTY_JSON);
+    case MQTT_EVENT_DISCONNECTED:
+        s_mqtt_connected = false;
+        ESP_LOGW(TAG, "MQTT disconnected, reconnecting automatically");
+        break;
 
-            /* Subscribe to property set commands */
-            esp_mqtt_client_subscribe(s_mqtt_client,
-                                      ONENET_TOPIC_PROPERTY_SET, 0);
-            ESP_LOGI(TAG, "Subscribed to: %s", ONENET_TOPIC_PROPERTY_SET);
-            break;
+    case MQTT_EVENT_PUBLISHED:
+        ESP_LOGI(TAG, "MQTT published, msg_id=%d", event->msg_id);
+        break;
 
-        case MQTT_EVENT_DISCONNECTED:
-            ESP_LOGI(TAG, "MQTT disconnected from broker");
-            break;
+    case MQTT_EVENT_ERROR:
+        s_mqtt_connected = false;
+        ESP_LOGE(TAG, "MQTT error");
+        if (event->error_handle &&
+            event->error_handle->error_type == MQTT_ERROR_TYPE_TCP_TRANSPORT) {
+            ESP_LOGE(TAG, "transport error: esp_tls=0x%x sock_errno=%d",
+                     event->error_handle->esp_tls_last_esp_err,
+                     event->error_handle->esp_transport_sock_errno);
+        }
+        break;
 
-        case MQTT_EVENT_DATA:
-            ESP_LOGI(TAG, "Topic: %.*s, Data: %.*s",
-                     event->topic_len, event->topic,
-                     event->data_len, event->data);
-            break;
-
-        case MQTT_EVENT_SUBSCRIBED:
-            ESP_LOGI(TAG, "MQTT subscribed successfully");
-            break;
-
-        case MQTT_EVENT_UNSUBSCRIBED:
-            ESP_LOGI(TAG, "MQTT unsubscribed");
-            break;
-
-        case MQTT_EVENT_PUBLISHED:
-            ESP_LOGI(TAG, "MQTT message published");
-            break;
-
-        case MQTT_EVENT_ERROR:
-            ESP_LOGE(TAG, "MQTT error occurred");
-            if (event->error_handle->error_type == MQTT_ERROR_TYPE_TCP_TRANSPORT) {
-                ESP_LOGE(TAG, "Last esp-tls error: 0x%x",
-                         event->error_handle->esp_tls_last_esp_err);
-            }
-            break;
-
-        default:
-            ESP_LOGD(TAG, "MQTT event: %" PRId32, event_id);
-            break;
+    default:
+        ESP_LOGD(TAG, "MQTT event: %" PRId32, event_id);
+        break;
     }
 }
 
-/* ================================================================== */
-/*  Start MQTT client                                                   */
-/* ================================================================== */
 static void mqtt_app_start(void)
 {
     const esp_mqtt_client_config_t mqtt_cfg = {
-        .broker.address.uri    = ONENET_BROKER_URI,
-        .credentials.username  = ONENET_USERNAME,
-        .credentials.client_id = ONENET_CLIENT_ID,
-        .credentials.authentication.password = ONENET_PASSWORD,
+        .broker.address.uri = MQTT_BROKER_URI,
+        .credentials.client_id = MQTT_CLIENT_ID,
+        .network.reconnect_timeout_ms = 5000,
+        .session.keepalive = 30,
     };
 
     s_mqtt_client = esp_mqtt_client_init(&mqtt_cfg);
@@ -150,14 +108,10 @@ static void mqtt_app_start(void)
     ESP_ERROR_CHECK(esp_mqtt_client_start(s_mqtt_client));
 }
 
-/* ================================================================== */
-/*  Background task — NVS → WiFi → MQTT                                 */
-/* ================================================================== */
 static void wifi_mqtt_task(void *pvParameters)
 {
-    ESP_LOGI(TAG, "Starting WiFi + MQTT background task");
+    ESP_LOGI(TAG, "Starting WiFi + MQTT quick phrase sender");
 
-    /* Initialize NVS (may need erase on version change) */
     esp_err_t ret = nvs_flash_init();
     if (ret == ESP_ERR_NVS_NO_FREE_PAGES ||
         ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
@@ -166,82 +120,77 @@ static void wifi_mqtt_task(void *pvParameters)
         ret = nvs_flash_init();
     }
     ESP_ERROR_CHECK(ret);
-    ESP_LOGI(TAG, "NVS initialized");
 
-    /* Initialize TCP/IP network interface and default event loop
-       (may already be initialized by comm_ap, ignore errors) */
-    esp_netif_init();
-    if (esp_event_loop_create_default() != ESP_OK) {
-        ESP_LOGW(TAG, "event loop already exists, reusing");
+    ESP_ERROR_CHECK(esp_netif_init());
+    ret = esp_event_loop_create_default();
+    if (ret != ESP_OK && ret != ESP_ERR_INVALID_STATE) {
+        ESP_ERROR_CHECK(ret);
     }
     ESP_ERROR_CHECK(esp_event_handler_register(IP_EVENT, IP_EVENT_STA_GOT_IP,
                                                ip_event_handler, NULL));
-    ESP_LOGI(TAG, "Netif and event loop initialized");
 
-    /* Connect to WiFi (blocks until connected or timeout) */
-    ESP_LOGI(TAG, "Connecting to WiFi...");
+    ESP_LOGI(TAG, "Connecting to phone hotspot WiFi...");
     ESP_ERROR_CHECK(example_connect());
-    ESP_LOGI(TAG, "WiFi connected successfully");
     configure_network_for_realtime();
 
-    /* Start SNTP time sync — must be AFTER WiFi is connected */
-    sntp_set_sync_mode(SNTP_SYNC_MODE_IMMED);
-    sntp_set_sync_interval(30000);
-    sntp_setoperatingmode(SNTP_OPMODE_POLL);
-    sntp_setservername(0, "pool.ntp.org");
-    sntp_init();
-    ESP_LOGI(TAG, "SNTP started (immediate mode)");
-
-    /* Wait for NTP sync (up to 15s) */
-    for (int w = 0; w < 150; w++) {
-        if (sntp_get_sync_status() == SNTP_SYNC_STATUS_COMPLETED) break;
-        vTaskDelay(pdMS_TO_TICKS(100));
-    }
-    {
-        time_t now; time(&now);
-        struct tm ti; gmtime_r(&now, &ti);
-        char buf[32]; strftime(buf, sizeof(buf), "%Y-%m-%dT%H:%M:%S", &ti);
-        ESP_LOGI(TAG, "NTP status: %d, time: %s UTC", sntp_get_sync_status(), buf);
-    }
-
-    /* Wait for NTP sync (up to 15s) so ASR has correct time */
-    {
-        int waited = 0;
-        while (waited < 150 && sntp_get_sync_status() != SNTP_SYNC_STATUS_COMPLETED) {
-            vTaskDelay(pdMS_TO_TICKS(100));
-            waited++;
-        }
-        time_t now; time(&now);
-        struct tm ti; gmtime_r(&now, &ti);
-        char buf[32]; strftime(buf, sizeof(buf), "%Y-%m-%d %H:%M:%S", &ti);
-        ESP_LOGI(TAG, "NTP sync: %s (%d00ms)", buf, waited);
-    }
-
-    /* Start MQTT to OneNet */
     mqtt_app_start();
 
-    ESP_LOGI(TAG, "WiFi + MQTT init complete, task exiting");
+    ESP_LOGI(TAG, "WiFi/MQTT sender is ready");
     vTaskDelete(NULL);
 }
 
-/* ================================================================== */
-/*  Public API                                                          */
-/* ================================================================== */
 esp_err_t wifi_mqtt_start(void)
 {
+    if (s_started) {
+        ESP_LOGW(TAG, "WiFi/MQTT already started");
+        return ESP_OK;
+    }
+    s_started = true;
+
     BaseType_t ret = xTaskCreate(
         wifi_mqtt_task,
         "wifi_mqtt",
-        8192,       /* stack size (bytes) */
-        NULL,       /* arg */
-        5,          /* priority */
-        NULL);      /* task handle (not needed) */
+        6144,
+        NULL,
+        5,
+        NULL);
 
     if (ret != pdPASS) {
+        s_started = false;
         ESP_LOGE(TAG, "Failed to create wifi_mqtt task");
         return ESP_FAIL;
     }
 
-    ESP_LOGI(TAG, "WiFi/MQTT background task spawned");
+    return ESP_OK;
+}
+
+bool wifi_mqtt_is_connected(void)
+{
+    return s_mqtt_connected;
+}
+
+esp_err_t wifi_mqtt_publish_text(const char *text)
+{
+    if (!text || text[0] == '\0') {
+        return ESP_ERR_INVALID_ARG;
+    }
+
+    if (!s_mqtt_client) {
+        ESP_LOGW(TAG, "MQTT not started, cannot send: %s", text);
+        return ESP_ERR_INVALID_STATE;
+    }
+
+    int msg_id = esp_mqtt_client_publish(s_mqtt_client,
+                                         MQTT_PUBLISH_TOPIC,
+                                         text,
+                                         0,
+                                         MQTT_PUBLISH_QOS,
+                                         MQTT_PUBLISH_RETAIN);
+    if (msg_id < 0) {
+        ESP_LOGE(TAG, "Publish failed: %s", text);
+        return ESP_FAIL;
+    }
+
+    ESP_LOGI(TAG, "Send text: %s", text);
     return ESP_OK;
 }
